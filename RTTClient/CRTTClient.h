@@ -7,5 +7,7 @@
 #include <stdio.h>
 #include <iostream>
 
+#include "CNetworkManager.h"
+
 #define RTTCLient_VERSION_MAJOR @RTTClient_VERSION_MAJOR@
 #define RTTClient_VERSION_MINOR @RTTClient_VERSION_MINOR@

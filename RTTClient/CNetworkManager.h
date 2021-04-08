@@ -24,7 +24,8 @@ public:
 	bool Start();
 	void Stop();
 
-	void Connect(const char* ip, const char* pass, int port);
+	void Connect(const char* ip, int port);
+	bool FinalizeConnection();
 	void Disconnect();
 
 	void Pulse();
@@ -49,6 +50,7 @@ private:
 
 	void Initialize();
 	void Destroy();
+	void SendHandshake();
 
 #pragma pack(push,1)
 	enum MESSAGE_TYPE : unsigned char

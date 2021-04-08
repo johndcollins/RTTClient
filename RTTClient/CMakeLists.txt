@@ -4,7 +4,7 @@
 cmake_minimum_required (VERSION 3.8)
 
 # Add source to this project's executable.
-add_executable (RTTClient "CRTTClient.cpp" "CRTTClient.h" "CTools.h" "CTools.cpp" "CText.h" "CText.cpp" "CDisplayWindow.h" "CDisplayWindow.cpp" "CNetworkManager.h" "CNetworkManager.cpp" "CSharedMemoryReader.h" "CSharedMemoryReader.cpp" "IntelliVibe.h" "BMSTexture.h")
+add_executable (RTTClient "CRTTClient.cpp" "CRTTClient.h" "CTools.h" "CTools.cpp" "CText.h" "CText.cpp" "CDisplayWindow.h" "CDisplayWindow.cpp" "CNetworkManager.h" "CNetworkManager.cpp" "CSharedMemoryReader.h" "CSharedMemoryReader.cpp" "IntelliVibe.h" "BMSTexture.h"       "CConfigReader.h" "CConfigReader.cpp" "CLogger.h" "CLogger.cpp")
 
 #IF(OS_WINDOWS)
 #ELSEIF(OS_LINUX)
