@@ -29,23 +29,26 @@ public:
 
 	void Pulse();
 
-	void SetLastConnection(const char* ip, const char* pass, int port) { g_lastIP = ip; g_lastPass = pass; g_lastPort = port; }
+	void SetLastConnection(const char* ip, int port) { m_sLastIP = ip; m_iLastPort = port; }
 
-	RakNet::RakPeerInterface* GetInterface() { return g_RakPeer; }
-	RakNet::SystemAddress GetSystemAddress() { return g_SystemAddr; }
+	int GetFPS();
+
+	RakNet::RakPeerInterface* GetInterface() { return m_pRakPeer; }
+	RakNet::SystemAddress GetSystemAddress() { return m_SystemAddr; }
 
 	int g_ConnectionState;
 
 private:
 	// RakNet Interfaces
-	RakNet::RakPeerInterface* g_RakPeer;
+	RakNet::RakPeerInterface* m_pRakPeer = nullptr;
 
 	/* Previous/Current connection */
-	std::string		g_lastIP;
-	std::string		g_lastPass;
-	int				g_lastPort;
-	RakNet::SystemAddress	g_SystemAddr;
-	bool g_validHandshake;
+	std::string				m_sLastIP;
+	int						m_iLastPort = 0;
+	RakNet::SystemAddress	m_SystemAddr;
+	bool					m_bValidHandshake = false;
+	
+	int m_iFps = 0;
 
 	void Initialize();
 	void Destroy();

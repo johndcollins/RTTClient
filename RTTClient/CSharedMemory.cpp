@@ -5,8 +5,9 @@ using namespace std;
 using namespace RTTClient::Common;
 using namespace RakNet;
 
-CSharedMemory::CSharedMemory(bool networked, string ipAddress, int port)
+CSharedMemory::CSharedMemory(int defaultFps, bool networked, string ipAddress, int port)
 {
+    m_iFps = defaultFps;
 	m_bNetworked = networked;
 	m_sIpAddress = ipAddress;
 	m_iPort = port;
@@ -38,11 +39,36 @@ CSharedMemory::~CSharedMemory()
 
 void CSharedMemory::Update()
 {
-    if (m_bNetworked)
+    m_iLastFrame = SDL_GetTicks();
+    if (m_iLastFrame >= (m_iLastFrame + 1000))
     {
-        if (m_pNetworkMgr->g_ConnectionState == CONSTATE_DISC && m_pNetworkMgr->g_ConnectionState == CONSTATE_FAIL)
-            m_pNetworkMgr->Connect(m_sIpAddress.c_str(), m_iPort);
-
-        m_pNetworkMgr->Pulse();
+        m_iLastTime = m_iLastFrame;
+        m_iFpsActual = m_iFrameCount;
+        m_iFrameCount = 0;
     }
+
+    m_iFrameCount++;
+    m_iTimerFPS = SDL_GetTicks() - m_iLastFrame;
+    if (m_iTimerFPS < (1000 / m_iFps))
+    {
+        if (m_bNetworked)
+        {
+            if (m_pNetworkMgr->g_ConnectionState == CONSTATE_DISC && m_pNetworkMgr->g_ConnectionState == CONSTATE_FAIL)
+                m_pNetworkMgr->Connect(m_sIpAddress.c_str(), m_iPort);
+
+            m_pNetworkMgr->Pulse();
+            int serverFps = m_pNetworkMgr->GetFPS();
+            if (serverFps != 0)
+                m_iFps = serverFps;
+        }
+        else
+        {
+            // Read Shared memory if we are on a windows machine...not happening here
+        }
+    }
+}
+
+int CSharedMemory::GetFps()
+{
+    return m_iFps;
 }
