@@ -43,30 +43,30 @@ bool CSharedMemoryReader::Update()
 {
 	if (OpenPrimaryMemoryArea())
 	{
-		void* fdPrimary = mmap(NULL, sizeof(FlightData), PROT_READ, MAP_SHARED, g_mapPrimaryFileHeader, 0);
+		void* fdPrimary = mmap(NULL, sizeof(class FlightData), PROT_READ, MAP_SHARED, g_mapPrimaryFileHeader, 0);
 		if (fdPrimary == MAP_FAILED)
 		{
 			return false;
 		}
 
 		FlightData flightData = FlightData();
-		memcpy(&flightData, fdPrimary, sizeof(FlightData));
-		munmap(fdPrimary, sizeof(FlightData));
+		memcpy(&flightData, fdPrimary, sizeof(class FlightData));
+		munmap(fdPrimary, sizeof(class FlightData));
 
 		// Update something
 	}
 
 	if (OpenSecondaryMemoryArea())
 	{
-		void* fdSecondary = mmap(NULL, sizeof(FlightData2), PROT_READ, MAP_SHARED, g_mapSecondaryFileHeader, 0);
+		void* fdSecondary = mmap(NULL, sizeof(class FlightData2), PROT_READ, MAP_SHARED, g_mapSecondaryFileHeader, 0);
 		if (fdSecondary == MAP_FAILED)
 		{
 			return false;
 		}
 
 		FlightData2 flightData2 = FlightData2();
-		memcpy(&flightData2, fdSecondary, sizeof(FlightData2));
-		munmap(fdSecondary, sizeof(FlightData2));
+		memcpy(&flightData2, fdSecondary, sizeof(class FlightData2));
+		munmap(fdSecondary, sizeof(class FlightData2));
 
 		// Update something
 
@@ -81,7 +81,7 @@ bool CSharedMemoryReader::Update()
 
 			StringData stringData = StringData();
 			memcpy(&stringData, fdString, flightData2.StringAreaSize);
-			munmap(fdString, sizeof(flightData2.StringAreaSize));
+			munmap(fdString, flightData2.StringAreaSize);
 
 			// Update something
 		}
@@ -97,7 +97,7 @@ bool CSharedMemoryReader::Update()
 
 			DrawingData drawingData = DrawingData();
 			memcpy(&drawingData, fdDrawing, flightData2.DrawingAreaSize);
-			munmap(fdDrawing, sizeof(flightData2.DrawingAreaSize));
+			munmap(fdDrawing, flightData2.DrawingAreaSize);
 
 			// Update something
 
@@ -106,30 +106,30 @@ bool CSharedMemoryReader::Update()
 
 	if (OpenOSBMemoryArea())
 	{
-		void* fdOSB = mmap(NULL, sizeof(OSBData), PROT_READ, MAP_SHARED, g_mapOSBFileHeader, 0);
+		void* fdOSB = mmap(NULL, sizeof(class OSBData), PROT_READ, MAP_SHARED, g_mapOSBFileHeader, 0);
 		if (fdOSB == MAP_FAILED)
 		{
 			return false;
 		}
 		
 		OSBData osbData = OSBData();
-		memcpy(&osbData, fdOSB, sizeof(OSBData));
-		munmap(fdOSB, sizeof(OSBData));
+		memcpy(&osbData, fdOSB, sizeof(class OSBData));
+		munmap(fdOSB, sizeof(class OSBData));
 
 		// Update something
 	}
 
 	if (OpenIntelliVibeMemoryArea())
 	{
-		void* fdIntelliVibe = mmap(NULL, sizeof(IntelliVibeData), PROT_READ, MAP_SHARED, g_mapIntelliVibeFileHeader, 0);
+		void* fdIntelliVibe = mmap(NULL, sizeof(class IntelliVibeData), PROT_READ, MAP_SHARED, g_mapIntelliVibeFileHeader, 0);
 		if (fdIntelliVibe == MAP_FAILED)
 		{
 			return false;
 		}
 
 		IntelliVibeData intelliVibeData = IntelliVibeData();
-		memcpy(&intelliVibeData, fdIntelliVibe, sizeof(IntelliVibeData));
-		munmap(fdIntelliVibe, sizeof(IntelliVibeData));
+		memcpy(&intelliVibeData, fdIntelliVibe, sizeof(class IntelliVibeData));
+		munmap(fdIntelliVibe, sizeof(class IntelliVibeData));
 
 		// Update something
 	}

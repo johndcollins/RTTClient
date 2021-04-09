@@ -17,6 +17,7 @@
 #include <unistd.h>         // readlink
 #include <linux/limits.h>   // PATH_MAX
 #include <fstream>
+#include <vector>
 
 using namespace std;
 using namespace RTTClient::Common;
@@ -53,6 +54,31 @@ int main()
     // parse the configuration file
     p->parseFile(path);
 
+    SDL_Init(0);
+
+    LOG_DEBUG("Testing Video Drivers...");
+    std::vector< bool > drivers(SDL_GetNumVideoDrivers());
+    for (int i = 0; i < drivers.size(); ++i)
+    {
+        drivers[i] = (0 == SDL_VideoInit(SDL_GetVideoDriver(i)));
+        SDL_VideoQuit();
+    }
+
+    LOG_DEBUG("SDL_VIDEODRIVER available:");
+    for (int i = 0; i < drivers.size(); ++i)
+    {
+        CLogger::getInstance()->debug("  %s", SDL_GetVideoDriver(i));
+    }
+    LOG_DEBUG("");
+
+    LOG_DEBUG("SDL_VIDEODRIVER usable:");
+    for (int i = 0; i < drivers.size(); ++i)
+    {
+        if (!drivers[i]) continue;
+        CLogger::getInstance()->debug("  %s", SDL_GetVideoDriver(i));
+    }
+    LOG_DEBUG("");
+
     // ----- Initialize SDL
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
     {
@@ -62,7 +88,6 @@ int main()
     }
     else
         LOG_DEBUG("SDL Initialized.");
-
 
     if (IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG) != (IMG_INIT_JPG | IMG_INIT_PNG))
     {
@@ -80,8 +105,10 @@ int main()
     else
         LOG_DEBUG("TTF Initialized.");
 
+    CLogger::getInstance()->debug("SDL_VIDEODRIVER selected : %s", SDL_GetCurrentVideoDriver());
+
     // ----- Create window
-    SDL_Window* window = SDL_CreateWindow("RTTClient", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_SIZE_X, SCREEN_SIZE_Y, SDL_WINDOW_RESIZABLE | SDL_WINDOW_SKIP_TASKBAR | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    SDL_Window* window = SDL_CreateWindow("RTTClient", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_SIZE_X, SCREEN_SIZE_Y, SDL_WINDOW_RESIZABLE | SDL_WINDOW_SKIP_TASKBAR /*| SDL_WINDOW_OPENGL*/ | SDL_WINDOW_SHOWN);
     if (!window)
     {
         CLogger::getInstance()->error("SDL Error creating window. %s", SDL_GetError());
@@ -89,27 +116,47 @@ int main()
     }
     else
         LOG_DEBUG("SDL Window created.");
+    
+    LOG_DEBUG("SDL_RENDER_DRIVER available:");
+    for (int i = 0; i < SDL_GetNumRenderDrivers(); ++i)
+    {
+        SDL_RendererInfo info;
+        SDL_GetRenderDriverInfo(i, &info);
+        CLogger::getInstance()->debug("  %s", info.name);
+    }
+    LOG_DEBUG("");
+
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (!renderer)
+    {
+        CLogger::getInstance()->error("SDL Error creating renderer. %s", SDL_GetError());
+        return -1;
+    }
+
+    SDL_RendererInfo info;
+    SDL_GetRendererInfo(renderer, &info);
+    CLogger::getInstance()->debug("SDL_RENDER_DRIVER selected : %s", info.name);
 
     // ----- SDL OpenGL settings
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    //SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    //SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
     // ----- SDL OpenGL context
-    SDL_GLContext glContext = SDL_GL_CreateContext(window);
+    //SDL_GLContext glContext = SDL_GL_CreateContext(window);
 
     // ----- SDL v-sync
-    SDL_GL_SetSwapInterval(1);
+    //SDL_GL_SetSwapInterval(1);
 
     // ----- GLEW
-    glewInit();
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_TEXTURE_2D);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glewInit();
+    //glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_TEXTURE_2D);
+    //glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 
@@ -154,7 +201,6 @@ int main()
 
     // ----- App loop
     bool quit = false;
-
     while (quit == false)
     {
         SDL_Event windowEvent;
@@ -183,22 +229,38 @@ int main()
             }
         }
 
-
         // DisplayWindow Updates
-        if (networkMgr.g_ConnectionState != CONSTATE_COND && networkMgr.g_ConnectionState != CONSTATE_CONN)
+        if (networkMgr.g_ConnectionState == CONSTATE_DISC && networkMgr.g_ConnectionState == CONSTATE_FAIL)
             networkMgr.Connect(ipAddr.c_str(), port);
 
         networkMgr.Pulse();
 
+        SDL_RenderClear(renderer);
+
+        SDL_Rect rect;
+        rect.x = 0;
+        rect.y = 0;
+        rect.w = SCREEN_SIZE_X;
+        rect.h = SCREEN_SIZE_Y;
+
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderDrawRect(renderer, &rect);
+
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+
+        SDL_RenderPresent(renderer);
+
+
         //SDL_GL_MakeCurrent(window, glContext);
-        SDL_GL_SwapWindow(window);
+        //SDL_GL_SwapWindow(window);
     }
 
     LOG_DEBUG("Shutting Down...");
 
     networkMgr.Disconnect();
 
-    SDL_GL_DeleteContext(glContext);
+    //SDL_GL_DeleteContext(glContext);
+    SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 
     TTF_Quit();

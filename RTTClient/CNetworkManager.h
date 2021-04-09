@@ -25,8 +25,7 @@ public:
 	void Stop();
 
 	void Connect(const char* ip, int port);
-	bool FinalizeConnection();
-	void Disconnect();
+	void Disconnect(bool shutdown = false);
 
 	void Pulse();
 

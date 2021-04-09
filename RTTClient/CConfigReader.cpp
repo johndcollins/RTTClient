@@ -40,9 +40,16 @@ bool CConfigReader::getValue(std::string tag, int& value)
     it = m_ConfigSettingMap.find(tag);
     if (it != m_ConfigSettingMap.end())
     {
-        value = atoi((it->second).c_str());
-        return true;
+        long tmp = atoi((it->second).c_str());
+        if (tmp == ERANGE)
+            return false;
+
+        if (tmp > 0)
+            value = tmp;
+        else
+            value = tmp;
     }
+
     return false;
 }
 

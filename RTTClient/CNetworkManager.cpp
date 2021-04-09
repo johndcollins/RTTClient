@@ -117,37 +117,13 @@ void CNetworkManager::Connect(const char* ip, int port)
 				CLogger::getInstance()->error("Failed to connect, errorcode: SECURITY INITIALIZATION FAILED");
 				break;
 		}
-
-		SendHandshake();
-
 		return;
 	}
 
 	LOG_DEBUG("CNetworkManager::Connect() End");
 }
 
-bool CNetworkManager::FinalizeConnection()
-{
-	//LOG_DEBUG("CNetworkManager::FinalizeConnection() Start");
-
-	if (g_ConnectionState == CONSTATE_COND)
-		return true;
-
-	g_SystemAddr = RakNet::SystemAddress(g_lastIP.c_str(), g_lastPort);
-	int result = g_RakPeer->GetConnectionState(g_SystemAddr);
-	switch (result)
-	{
-		case RakNet::ConnectionState::IS_CONNECTED:
-			SendHandshake();
-			//LOG_DEBUG("CNetworkManager::FinalizeConnection() Connected End");
-			return true;
-		default:
-			//LOG_DEBUG("CNetworkManager::FinalizeConnection() Not Connected End");
-			return false;
-	};
-};
-
-void CNetworkManager::Disconnect()
+void CNetworkManager::Disconnect(bool shutdown)
 {
 	LOG_DEBUG("CNetworkManager::Disconnect() Start");
 
@@ -168,17 +144,20 @@ void CNetworkManager::Disconnect()
 	// Reinitialize our RakPeerInterface
 	Stop();
 	LOG_DEBUG("CNetworkManager::Disconnect() Restarting");
-	if (!Start())
-		LOG_DEBUG("CNetworkManager::Disconnect() Restart Failed");
-	else
-		LOG_DEBUG("CNetworkManager::Disconnect() Restarted");
+	if (!shutdown)
+	{
+		if (!Start())
+			LOG_DEBUG("CNetworkManager::Disconnect() Restart Failed");
+		else
+			LOG_DEBUG("CNetworkManager::Disconnect() Restarted");
+	}
 
 	LOG_DEBUG("CNetworkManager::Disconnect() End");
 }
 
 void CNetworkManager::SendHandshake()
 {
-	//LOG_DEBUG("CNetworkManager::SendHandshake() Start");
+	LOG_DEBUG("CNetworkManager::SendHandshake() Start");
 
 	// Handshake Struct
 	HANDSHAKE hs{};
@@ -214,7 +193,7 @@ void CNetworkManager::SendHandshake()
 
 	CNetworkManager::GetInterface()->Send(&bitstream, MEDIUM_PRIORITY, RELIABLE_ORDERED, 0, CNetworkManager::GetSystemAddress(), false);
 
-	//LOG_DEBUG("CNetworkManager::SendHandshake() End");
+	LOG_DEBUG("CNetworkManager::SendHandshake() End");
 }
 
 void CNetworkManager::Pulse()
@@ -227,7 +206,10 @@ void CNetworkManager::Pulse()
 
 	while (g_Packet = g_RakPeer->Receive())
 	{
+		CLogger::getInstance()->debug(" Packet Received : %d", g_Packet->data[0]);
+
 		RakNet::BitStream g_BitStream(g_Packet->data + 1, g_Packet->length + 1, false);
+		CLogger::getInstance()->debug(" Packet Received : %x", g_Packet->data);
 
 		switch (g_Packet->data[0])
 		{
@@ -315,7 +297,10 @@ void CNetworkManager::Pulse()
 			case ID_CONNECTION_REQUEST_ACCEPTED:
 			{
 				LOG_DEBUG("CNetworkManager::Pulse() ID_CONNECTION_REQUEST_ACCEPTED Start");
-				
+				// Set the server Adress
+				g_SystemAddr = g_Packet->systemAddress;
+
+				SendHandshake();
 				LOG_DEBUG("CNetworkManager::Pulse() ID_CONNECTION_REQUEST_ACCEPTED End");
 				break;
 			}
