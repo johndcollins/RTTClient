@@ -6,32 +6,37 @@
 
 #include <SDL2/SDL.h>
 
-class DisplayWindow
+class CDisplayWindow
 {
 public:
-    DisplayWindow(const std::string& title, int x, int y, int width, int height, bool ontop);
-    virtual ~DisplayWindow();
+    CDisplayWindow(const std::string& title, int x, int y, int width, int height, bool ontop);
+    virtual ~CDisplayWindow();
 
-    void update();
-    void pollEvents(SDL_Event& event);
-    void clear() const;
-    inline bool isClosed() const { return _closed; }
+    void Update();
+    void Clear() const;
+    
+    void ShowWindow();
+    void MoveWindow(int x, int y, int width, int height, bool ontop);
 
-    static SDL_Renderer* renderer;
+    inline bool IsClosed() const { return m_bWindow_Closed; }
+
+    static SDL_Renderer* m_pRenderer;
 
 private:
-    bool init();
+    bool Init();
     //SDL_Surface* horizontal_mirror(SDL_Surface* sfc);
     //SDL_Surface* flip_vertically(SDL_Surface* sfc);
 
-    std::string _title;
-    int _x = 0;
-    int _y = 0;
-    int _width = 640;
-    int _height = 480;
-    bool _ontop = false;
-    bool _closed = false;
+    SDL_Event m_windowEvent;
 
-    SDL_Window* _window = nullptr;
-    SDL_GLContext _glContext;
+    std::string m_sTitle;
+    int m_iWindow_X = 0;
+    int m_iWindow_Y = 0;
+    int m_iWindow_W = 640;
+    int m__iWindow_H = 480;
+    bool m_bWindow_Ontop = false;
+    bool m_bWindow_Closed = false;
+
+    SDL_Window* m_pWindow = nullptr;
+    SDL_GLContext m_pGLContext;
 };

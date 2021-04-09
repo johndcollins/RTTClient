@@ -2,7 +2,7 @@
 
 int main(int argc, char* argv[])
 {
-    Application app;
+    Application app(argc, argv);
 
     app.Loop();
 

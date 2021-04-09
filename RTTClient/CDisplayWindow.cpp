@@ -5,29 +5,34 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
-SDL_Renderer* DisplayWindow::renderer = nullptr;
+#include "CLogger.h"
 
-DisplayWindow::DisplayWindow(const std::string& title, int x, int y, int width, int height, bool ontop) :
-    _title(title), _x(x), _y(y), _width(width), _height(height), _ontop(ontop)
+using namespace std;
+using namespace RTTClient::Common;
+
+SDL_Renderer* CDisplayWindow::m_pRenderer = nullptr;
+
+CDisplayWindow::CDisplayWindow(const std::string& title, int x, int y, int width, int height, bool ontop) :
+    m_sTitle(title), m_iWindow_X(x), m_iWindow_Y(y), m_iWindow_W(width), m__iWindow_H(height), m_bWindow_Ontop(ontop)
 {
-    _closed = !init();
+    m_bWindow_Closed = !Init();
 }
 
-DisplayWindow::~DisplayWindow()
+CDisplayWindow::~CDisplayWindow()
 {
-    SDL_DestroyRenderer(renderer);
-    SDL_GL_DeleteContext(_glContext);
-    SDL_DestroyWindow(_window);
+    SDL_DestroyRenderer(m_pRenderer);
+    SDL_GL_DeleteContext(m_pGLContext);
+    SDL_DestroyWindow(m_pWindow);
 }
 
-bool DisplayWindow::init()
+bool CDisplayWindow::Init()
 {
      // ----- Create window
-    _window = SDL_CreateWindow(_title.c_str(), _x, _y, _width, _height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS);
-    if (!_window)
+    m_pWindow = SDL_CreateWindow(m_sTitle.c_str(), m_iWindow_X, m_iWindow_Y, m_iWindow_W, m__iWindow_H, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS);
+    if (!m_pWindow)
     {
-        fprintf(stderr, "Error creating window.\n");
-        return 2;
+        CLogger::getInstance()->error("::Init() Error creating window. %s", SDL_GetError());
+        return false;
     }
 
     // ----- SDL OpenGL settings
@@ -39,7 +44,7 @@ bool DisplayWindow::init()
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
     // ----- SDL OpenGL context
-    _glContext = SDL_GL_CreateContext(_window);
+    m_pGLContext = SDL_GL_CreateContext(m_pWindow);
 
     // ----- SDL v-sync
     SDL_GL_SetSwapInterval(1);
@@ -54,75 +59,81 @@ bool DisplayWindow::init()
     return true;
 }
 
-void DisplayWindow::update()
+void CDisplayWindow::Update()
 {
-    SDL_GL_MakeCurrent(_window, _glContext);
+    SDL_GL_MakeCurrent(m_pWindow, m_pGLContext);
+
+    while (SDL_PollEvent(&m_windowEvent) > 0)
+    {
+        switch (m_windowEvent.type)
+        {
+            case SDL_QUIT: m_bWindow_Closed = true; break;
+            case SDL_KEYDOWN:
+                switch (m_windowEvent.key.keysym.sym)
+                {
+                    case SDLK_ESCAPE:
+                        break;
+                }
+                break;
+                /*
+                Mouse case for example
+                case SDL_MOUSEMOTION:
+                    std::cout << "moving the mouse (" << event.motion.x << ", " << event.motion.y << ")\n";
+                    break;
+                */
+            default: break;
+        }
+    }
 
     /*
         do drawing here
     */
-    SDL_RWops* rwop = SDL_RWFromMem(nullptr, 1);
-    int isValid = IMG_isJPG(rwop);
-    if (!isValid)
-    {
-        isValid = IMG_isPNG(rwop);
-    }
+    //SDL_RWops* rwop = SDL_RWFromMem(nullptr, 1);
+    //int isValid = IMG_isJPG(rwop);
+    //if (!isValid)
+    //{
+    //    isValid = IMG_isPNG(rwop);
+    //}
 
-    if (isValid)
-    {
-        /*
-                SDL_RendererFlip flip;
-                if (flipImageHorizontally && flipImageVertically)
-                    flip = SDL_FLIP_HORIZONTAL | SDL_FLIP_VERTICAL;
-                else if (flipImageHorizontally)
-                    flip = SDL_FLIP_HORIZONTAL;
-                else if (flipImageVertically)
-                    flip = SDL_FLIP_VERTICAL;
+    //if (isValid)
+    //{
+    //    /*
+    //            SDL_RendererFlip flip;
+    //            if (flipImageHorizontally && flipImageVertically)
+    //                flip = SDL_FLIP_HORIZONTAL | SDL_FLIP_VERTICAL;
+    //            else if (flipImageHorizontally)
+    //                flip = SDL_FLIP_HORIZONTAL;
+    //            else if (flipImageVertically)
+    //                flip = SDL_FLIP_VERTICAL;
 
-                SDL_RenderCopyEx(renderer, texture, NULL, NULL, 0, NULL, flip);
-         */
+    //            SDL_RenderCopyEx(renderer, texture, NULL, NULL, 0, NULL, flip);
+    //     */
 
 
-        SDL_Surface* image = IMG_Load_RW(rwop, 1);
-        if (!image)
-            std::cerr << "Failed to load image" << std::endl;
-    }
+    //    SDL_Surface* image = IMG_Load_RW(rwop, 1);
+    //    if (!image)
+    //        std::cerr << "Failed to load image" << std::endl;
+    //}
 
-    SDL_GL_SwapWindow(_window);
+    SDL_GL_SwapWindow(m_pWindow);
 }
 
-void DisplayWindow::pollEvents(SDL_Event& event)
+void CDisplayWindow::ShowWindow()
 {
-    switch (event.type)
-    {
-    case SDL_QUIT: _closed = true; break;
-    case SDL_KEYDOWN:
-        switch (event.key.keysym.sym)
-        {
-        case SDLK_ESCAPE:
-            Tools::debug("escape key");
-            break;
-
-        }
-        break;
-        /*
-        Mouse case for example
-        case SDL_MOUSEMOTION:
-            std::cout << "moving the mouse (" << event.motion.x << ", " << event.motion.y << ")\n";
-            break;
-        */
-    default: break;
-    }
 }
 
-void DisplayWindow::clear() const
+void CDisplayWindow::MoveWindow(int x, int y, int width, int height, bool ontop)
+{
+}
+
+void CDisplayWindow::Clear() const
 {
 
     //Present first to display sprites before rendering background
-    SDL_RenderPresent(renderer);
+    SDL_RenderPresent(m_pRenderer);
 
     //Set the color to the render - R G B A
-    SDL_SetRenderDrawColor(renderer, 0, 0, 200, 255);
+    SDL_SetRenderDrawColor(m_pRenderer, 0, 0, 200, 255);
 
-    SDL_RenderClear(renderer);
+    SDL_RenderClear(m_pRenderer);
 }
