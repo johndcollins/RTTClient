@@ -5,6 +5,7 @@
 #include "CTools.h"
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 
 using namespace std;
 
@@ -17,7 +18,6 @@ public:
     void SetBackgroundImage(string filename);
 
     void Render();
-    void Clear() const;
     
     bool HandleEvents(SDL_Event& event);
 
@@ -34,14 +34,20 @@ public:
     inline void SetUseDefaultWidth(bool set) { m_bDefaultSize_W = set; }
     inline void SetUseDefaultHeight(bool set) { m_bDefaultSize_H = set; }
 
+    inline void SetShowPositionInfo(bool set) { m_bShowPositionInfo = set; }
+
+    void SetWindowsMovable(bool set);
+
 private:
     bool Init();
 
     SDL_Texture* LoadTexture(string path);
+    void RenderText(string text, SDL_Rect dest, SDL_Color textColor);
+
+    void ShowPositionText();
 
     void DrawDefaultBackground();
     void LoadBackground();
-    void DrawBackground();
 
     static SDL_HitTestResult DraggingCallback(SDL_Window* win, const SDL_Point* area, void* data);
 
@@ -49,6 +55,8 @@ private:
     SDL_Renderer*   m_pWindowRenderer = nullptr;
     SDL_Texture*    m_pTexture = nullptr;
     SDL_Texture*    m_pLastTexture = nullptr;
+    TTF_Font*       m_pFont = nullptr;
+    //SDL_Texture*    m_pFontTexture = nullptr;
 
     SDL_Event       m_windowEvent;
 
@@ -63,9 +71,10 @@ private:
     bool            m_bWindowShown = false;
 
     string          m_sBackgroundImage;
+    bool            m_bShowPositionInfo = false;
+    bool            m_bWindowsMovable = false;
     bool            m_bFlipImageHorizontally = false;
     bool            m_bFlipImageVertically = false;
     bool            m_bDefaultSize_W = false;
     bool            m_bDefaultSize_H = false;
-
 };

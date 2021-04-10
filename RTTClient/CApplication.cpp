@@ -46,9 +46,8 @@ Application::~Application()
     if (m_pSharedMemory != nullptr)
         delete m_pSharedMemory;
 
-    //SDL_FreeSurface(m_pWindowSurface);
-    SDL_DestroyRenderer(m_pWindowRenderer);
-    SDL_DestroyWindow(m_pWindow);
+    //SDL_DestroyRenderer(m_pWindowRenderer);
+    //SDL_DestroyWindow(m_pWindow);
 
     TTF_Quit();
     IMG_Quit();
@@ -59,8 +58,8 @@ void Application::Loop()
 {
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 
-    bool keep_window_open = true;
-    while (keep_window_open)
+    bool running = true;
+    while (running)
     {
         while (SDL_PollEvent(&m_windowEvent) > 0)
         {
@@ -68,45 +67,47 @@ void Application::Loop()
             if (m_windowEvent.type == SDL_WINDOWEVENT && (m_windowEvent.type == SDL_QUIT || m_windowEvent.window.event == SDL_WINDOWEVENT_CLOSE))
             {
                 LOG_DEBUG("Application::Loop() SDL_QUIT");
-                keep_window_open = false;
+                CloseDisplays();
+                running = false;
             } 
-            else if (m_windowEvent.type == SDL_WINDOWEVENT && m_windowEvent.window.windowID == m_iWindowID)
-            {
-                switch (m_windowEvent.window.event)
-                {
-                    //Window appeared
-                case SDL_WINDOWEVENT_SHOWN:
-                    m_bShown = true;
-                    break;
-                    //Window disappeared
-                case SDL_WINDOWEVENT_HIDDEN:
-                    m_bShown = false;
-                    break;
-                    //Get new dimensions and repaint
-                case SDL_WINDOWEVENT_SIZE_CHANGED:
-                    m_iWindowWidth = m_windowEvent.window.data1;
-                    m_iWindowHeight = m_windowEvent.window.data2;
-                    SDL_RenderPresent(m_pWindowRenderer);
-                    break;
-                //Repaint on expose
-                case SDL_WINDOWEVENT_EXPOSED:
-                    SDL_RenderPresent(m_pWindowRenderer);
-                break;
-                case SDL_WINDOWEVENT_CLOSE:
-                    LOG_DEBUG("Application::Loop() SDL_WINDOWEVENT_CLOSE");
-                    SDL_HideWindow(m_pWindow);
-                    keep_window_open = false;
-                    break;
-                }
-            }
+            //else if (m_windowEvent.type == SDL_WINDOWEVENT && m_windowEvent.window.windowID == m_iWindowID)
+            //{
+            //    switch (m_windowEvent.window.event)
+            //    {
+            //        //Window appeared
+            //    case SDL_WINDOWEVENT_SHOWN:
+            //        m_bShown = true;
+            //        break;
+            //        //Window disappeared
+            //    case SDL_WINDOWEVENT_HIDDEN:
+            //        m_bShown = false;
+            //        break;
+            //        //Get new dimensions and repaint
+            //    case SDL_WINDOWEVENT_SIZE_CHANGED:
+            //        m_iWindowWidth = m_windowEvent.window.data1;
+            //        m_iWindowHeight = m_windowEvent.window.data2;
+            //        break;
+            //    //Repaint on expose
+            //    case SDL_WINDOWEVENT_EXPOSED:
+            //    break;
+            //    case SDL_WINDOWEVENT_CLOSE:
+            //        LOG_DEBUG("Application::Loop() SDL_WINDOWEVENT_CLOSE");
+            //        //SDL_HideWindow(m_pWindow);
+            //        running = false;
+            //        break;
+            //    }
+            //}
             else
             { 
                 UpdateDisplaysEvent(m_windowEvent);
             }
         }
 
-        Update();
-        Render();
+        if (running)
+        {
+            Update();
+            Render();
+        }
     }
 }
 
@@ -165,20 +166,20 @@ bool Application::SetupSDL()
 
     CLogger::getInstance()->debug("Application::Application() SDL_VIDEODRIVER selected : %s", SDL_GetCurrentVideoDriver());
 
-    m_pWindow = SDL_CreateWindow("RTTClient",
-        SDL_WINDOWPOS_CENTERED,
-        SDL_WINDOWPOS_CENTERED,
-        SCREEN_SIZE_X, SCREEN_SIZE_Y, SDL_WINDOW_MINIMIZED);
+    //m_pWindow = SDL_CreateWindow("RTTClient",
+    //    SDL_WINDOWPOS_CENTERED,
+    //    SDL_WINDOWPOS_CENTERED,
+    //    SCREEN_SIZE_X, SCREEN_SIZE_Y, SDL_WINDOW_MINIMIZED);
 
-    if (!m_pWindow)
-    {
-        LOG_ERROR("Application::Application() Failed to create window");
-        CLogger::getInstance()->error("Application::Application() SDL2 Error: %s", SDL_GetError());
-        return false;
-    }
-    
-    m_bShown = true;
-    m_iWindowID = SDL_GetWindowID(m_pWindow);
+    //if (!m_pWindow)
+    //{
+    //    LOG_ERROR("Application::Application() Failed to create window");
+    //    CLogger::getInstance()->error("Application::Application() SDL2 Error: %s", SDL_GetError());
+    //    return false;
+    //}
+    //
+    //m_bShown = true;
+    //m_iWindowID = SDL_GetWindowID(m_pWindow);
 
     LOG_DEBUG("Application::Application() SDL_RENDER_DRIVER available:");
     for (int i = 0; i < SDL_GetNumRenderDrivers(); ++i)
@@ -198,17 +199,17 @@ bool Application::SetupSDL()
     //    return;
     //}
 
-    m_pWindowRenderer = SDL_CreateRenderer(m_pWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if (!m_pWindowRenderer)
-    {
-        LOG_ERROR("Application::Application() Failed to get window's surface");
-        CLogger::getInstance()->error("Application::Application() SDL2 Error: %s", SDL_GetError());
-        return false;
-    }
+    //m_pWindowRenderer = SDL_CreateRenderer(m_pWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    //if (!m_pWindowRenderer)
+    //{
+    //    LOG_ERROR("Application::Application() Failed to get window's surface");
+    //    CLogger::getInstance()->error("Application::Application() SDL2 Error: %s", SDL_GetError());
+    //    return false;
+    //}
 
-    SDL_RendererInfo info;
-    SDL_GetRendererInfo(m_pWindowRenderer, &info);
-    CLogger::getInstance()->debug("Application::Application() SDL_RENDER_DRIVER selected : %s", info.name);
+    //SDL_RendererInfo info;
+    //SDL_GetRendererInfo(m_pWindowRenderer, &info);
+    //CLogger::getInstance()->debug("Application::Application() SDL_RENDER_DRIVER selected : %s", info.name);
 
     return true;
 }
@@ -233,7 +234,7 @@ void Application::Update()
 
 void Application::Render()
 {
-    SDL_RenderClear(m_pWindowRenderer);
+//    SDL_RenderClear(m_pWindowRenderer);
 
     m_iFrameCount++;
     m_iTimerFPS = SDL_GetTicks() - m_iLastFrame;
@@ -242,7 +243,7 @@ void Application::Render()
         RenderDisplays();
     }
 
-    SDL_RenderPresent(m_pWindowRenderer);
+//    SDL_RenderPresent(m_pWindowRenderer);
 }
 
 void Application::UpdateDisplaysEvent(SDL_Event &event)
@@ -303,6 +304,9 @@ void Application::RenderDisplays()
             m_pHUDWindow->SetFlipImageHorizontally(m_bHUDFlippedHorizontically);
             m_pHUDWindow->SetUseDefaultWidth(m_bHUDDefaultSize_W);
             m_pHUDWindow->SetUseDefaultHeight(m_bHUDDefaultSize_H);
+
+            m_pHUDWindow->SetShowPositionInfo(m_bShowPositionInfo);
+            m_pHUDWindow->SetWindowsMovable(m_bWindowsMovable);
         }
         else
         {
@@ -325,6 +329,9 @@ void Application::RenderDisplays()
             m_pPFLWindow->SetFlipImageHorizontally(m_bPFLFlippedHorizontically);
             m_pPFLWindow->SetUseDefaultWidth(m_bPFLDefaultSize_W);
             m_pPFLWindow->SetUseDefaultHeight(m_bPFLDefaultSize_H);
+
+            m_pPFLWindow->SetShowPositionInfo(m_bShowPositionInfo);
+            m_pPFLWindow->SetWindowsMovable(m_bWindowsMovable);
         }
         else
         {
@@ -347,6 +354,9 @@ void Application::RenderDisplays()
             m_pDEDWindow->SetFlipImageHorizontally(m_bDEDFlippedHorizontically);
             m_pDEDWindow->SetUseDefaultWidth(m_bDEDDefaultSize_W);
             m_pDEDWindow->SetUseDefaultHeight(m_bDEDDefaultSize_H);
+
+            m_pDEDWindow->SetShowPositionInfo(m_bShowPositionInfo);
+            m_pDEDWindow->SetWindowsMovable(m_bWindowsMovable);
         }
         else
         {
@@ -369,6 +379,9 @@ void Application::RenderDisplays()
             m_pRWRWindow->SetFlipImageHorizontally(m_bRWRFlippedHorizontically);
             m_pRWRWindow->SetUseDefaultWidth(m_bRWRDefaultSize_W);
             m_pRWRWindow->SetUseDefaultHeight(m_bRWRDefaultSize_H);
+
+            m_pRWRWindow->SetShowPositionInfo(m_bShowPositionInfo);
+            m_pRWRWindow->SetWindowsMovable(m_bWindowsMovable);
         }
         else
         {
@@ -391,6 +404,9 @@ void Application::RenderDisplays()
             m_pMFDLEFTWindow->SetFlipImageHorizontally(m_bMFDLEFTFlippedHorizontically);
             m_pMFDLEFTWindow->SetUseDefaultWidth(m_bMFDLEFTDefaultSize_W);
             m_pMFDLEFTWindow->SetUseDefaultHeight(m_bMFDLEFTDefaultSize_H);
+
+            m_pMFDLEFTWindow->SetShowPositionInfo(m_bShowPositionInfo);
+            m_pMFDLEFTWindow->SetWindowsMovable(m_bWindowsMovable);
         }
         else
         {
@@ -413,6 +429,9 @@ void Application::RenderDisplays()
             m_pMFDRIGHTWindow->SetFlipImageHorizontally(m_bMFDRIGHTFlippedHorizontically);
             m_pMFDRIGHTWindow->SetUseDefaultWidth(m_bMFDRIGHTDefaultSize_W);
             m_pMFDRIGHTWindow->SetUseDefaultHeight(m_bMFDRIGHTDefaultSize_H);
+
+            m_pMFDRIGHTWindow->SetShowPositionInfo(m_bShowPositionInfo);
+            m_pMFDRIGHTWindow->SetWindowsMovable(m_bWindowsMovable);
         }
         else
         {
@@ -435,6 +454,9 @@ void Application::RenderDisplays()
             m_pHMSWindow->SetFlipImageHorizontally(m_bHMSFlippedHorizontically);
             m_pHMSWindow->SetUseDefaultWidth(m_bHMSDefaultSize_W);
             m_pHMSWindow->SetUseDefaultHeight(m_bHMSDefaultSize_H);
+
+            m_pHMSWindow->SetShowPositionInfo(m_bShowPositionInfo);
+            m_pHMSWindow->SetWindowsMovable(m_bWindowsMovable);
         }
         else
         {
@@ -536,6 +558,12 @@ void Application::ReadSettings()
     if (m_iFps <= 0)
         m_iFps = 30;
     CLogger::getInstance()->debug("   FPS : %d", m_iFps);
+
+    m_pConfigReader->getValue("SHOW_POSITION_INFO", m_bShowPositionInfo);
+    CLogger::getInstance()->debug("   ShowPositionInfo : %s", m_bShowPositionInfo ? "true" : "false");
+
+    m_pConfigReader->getValue("WINDOWS_MOVABLE", m_bWindowsMovable);
+    CLogger::getInstance()->debug("   WindowsMovable : %s", m_bWindowsMovable ? "true" : "false");
 
     m_pConfigReader->getValue("HUD_BACKGROUND_IMAGE", m_sHUDBackgroundImage);
     CLogger::getInstance()->debug("   HUD_BACKGROUND_IMAGE : %s", m_sHUDBackgroundImage.c_str());

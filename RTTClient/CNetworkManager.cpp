@@ -143,9 +143,9 @@ void CNetworkManager::Disconnect(bool shutdown)
 
 	// Reinitialize our RakPeerInterface
 	Stop();
-	LOG_DEBUG("CNetworkManager::Disconnect() Restarting");
 	if (!shutdown)
 	{
+		LOG_DEBUG("CNetworkManager::Disconnect() Restarting");
 		if (!Start())
 			LOG_DEBUG("CNetworkManager::Disconnect() Restart Failed");
 		else

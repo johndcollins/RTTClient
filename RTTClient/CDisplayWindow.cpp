@@ -26,11 +26,17 @@ CDisplayWindow::CDisplayWindow(const string& title, int x, int y, int width, int
 CDisplayWindow::~CDisplayWindow()
 {
     LOG_DEBUG("CDisplayWindow::~CDisplayWindow() Begin");
-    SDL_DestroyTexture(m_pTexture);
+    if (m_pTexture != nullptr)
+        SDL_DestroyTexture(m_pTexture);
     m_pTexture = nullptr;
     m_pLastTexture = nullptr;
 
+    if (m_pFont != nullptr)
+        TTF_CloseFont(m_pFont);
+    m_pFont = nullptr;
+
     SDL_DestroyRenderer(m_pWindowRenderer);
+    m_pWindowRenderer = nullptr;
     SDL_DestroyWindow(m_pWindow);
     m_pWindow = nullptr;
     LOG_DEBUG("CDisplayWindow::~CDisplayWindow() End");
@@ -74,7 +80,7 @@ bool CDisplayWindow::Init()
     CLogger::getInstance()->debug("Creating window. Title %s, X %d, Y %d, W %d, H %d, ONTOP %s", m_sTitle.c_str(), m_iWindow_X, m_iWindow_Y, m_iWindow_W, m_iWindow_H, m_bWindow_Ontop ? "true" : "false");
     
     // ----- Create window
-    m_pWindow = SDL_CreateWindow(m_sTitle.c_str(), m_iWindow_X, m_iWindow_Y, m_iWindow_W, m_iWindow_H, SDL_WINDOW_RESIZABLE | /*SDL_WINDOW_OPENGL |*/ SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS);
+    m_pWindow = SDL_CreateWindow(m_sTitle.c_str(), m_iWindow_X, m_iWindow_Y, m_iWindow_W, m_iWindow_H, SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS);
     if (!m_pWindow)
     {
         CLogger::getInstance()->error("CDisplayWindow::Init() Error creating window. %s", SDL_GetError());
@@ -88,17 +94,16 @@ bool CDisplayWindow::Init()
     m_pWindowRenderer = SDL_CreateRenderer(m_pWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (!m_pWindowRenderer)
     {
-        LOG_ERROR("ApplicatCDisplayWindow::Init() Failed to get window's surface");
+        LOG_ERROR("CDisplayWindow::Init() Failed to get window's surface");
         CLogger::getInstance()->error("CDisplayWindow::Init() SDL2 Error: %s", SDL_GetError());
         return false;
     }
 
-    int success = SDL_SetWindowHitTest(m_pWindow, CDisplayWindow::DraggingCallback, NULL);
-    if (success == -1)
+    m_pFont = TTF_OpenFont("font.ttf", 12);
+    if (m_pFont == nullptr)
     {
-        LOG_ERROR("ApplicatCDisplayWindow::Init() Failed to setup DL_SetWindowHitTest");
-        CLogger::getInstance()->error("CDisplayWindow::Init() DL_SetWindowHitTest Error: %s", SDL_GetError());
-        return false;
+        LOG_ERROR("CDisplayWindow::Init() Failed to setup TTF Font");
+        CLogger::getInstance()->error("CDisplayWindow::Render() Failed to load lazy font! SDL_ttf Error: %s", TTF_GetError());
     }
 
     LOG_DEBUG("CDisplayWindow::Init() End");
@@ -144,7 +149,11 @@ void CDisplayWindow::Render()
         }
         else
             DrawDefaultBackground();
-    
+
+        if (m_bShowPositionInfo)
+            if (m_pFont != nullptr)
+                ShowPositionText();
+
         SDL_RenderPresent(m_pWindowRenderer);
     }
 
@@ -175,6 +184,30 @@ SDL_Texture* CDisplayWindow::LoadTexture(string path)
     }
 
     return newTexture;
+}
+
+void CDisplayWindow::RenderText(string text, SDL_Rect dest, SDL_Color textColor) {
+    SDL_Surface* surf = TTF_RenderText_Solid(m_pFont, text.c_str(), textColor);
+
+    dest.w = surf->w;
+    dest.h = surf->h;
+
+    SDL_Texture* tex = SDL_CreateTextureFromSurface(m_pWindowRenderer, surf);
+
+    SDL_RenderCopy(m_pWindowRenderer, tex, NULL, &dest);
+    SDL_DestroyTexture(tex);
+    SDL_FreeSurface(surf);
+}
+
+void CDisplayWindow::ShowPositionText()
+{
+    SDL_Rect dest = { 10, 10, 0, 0 };
+
+    SDL_Color textColor = { 0xFF, 0xFF, 0xFF };
+    std::ostringstream stringStream;
+    stringStream << "X : " << m_iWindow_X << " Y : " << m_iWindow_Y << " W : " << m_iWindow_W << " H : " << m_iWindow_H;
+    string textToDisplay = stringStream.str();
+    RenderText(textToDisplay, dest, textColor);
 }
 
 void CDisplayWindow::DrawDefaultBackground()
@@ -235,20 +268,6 @@ void CDisplayWindow::LoadBackground()
     }
 }
 
-void CDisplayWindow::DrawBackground()
-{
-    SDL_Rect rect;
-    rect.x = 0;
-    rect.y = 0;
-    rect.w = m_iWindow_W;
-    rect.h = m_iWindow_H;
-
-    SDL_SetRenderDrawColor(m_pWindowRenderer, 255, 255, 255, 255);
-    SDL_RenderDrawRect(m_pWindowRenderer, &rect);
-
-    SDL_SetRenderDrawColor(m_pWindowRenderer, 0, 0, 0, 255);
-}
-
 bool CDisplayWindow::HandleEvents(SDL_Event& event)
 {
     if (event.type == SDL_WINDOWEVENT && event.window.windowID == m_iWindowID)
@@ -267,7 +286,6 @@ bool CDisplayWindow::HandleEvents(SDL_Event& event)
         case SDL_WINDOWEVENT_SIZE_CHANGED:
             m_iWindow_W = m_windowEvent.window.data1;
             m_iWindow_H = m_windowEvent.window.data2;
-            SDL_RenderPresent(m_pWindowRenderer);
             break;
         case SDL_WINDOWEVENT_MOVED:
             m_iWindow_X = m_windowEvent.window.data1;
@@ -325,14 +343,29 @@ void CDisplayWindow::CloseWindow()
     m_bWindowShown = false;
 }
 
-void CDisplayWindow::Clear() const
-{
+void CDisplayWindow::SetWindowsMovable(bool set)
+{ 
+    m_bWindowsMovable = set; 
+    if (m_bWindowsMovable)
+    {
+        int success = SDL_SetWindowHitTest(m_pWindow, CDisplayWindow::DraggingCallback, NULL);
+        if (success == -1)
+        {
+            LOG_ERROR("CDisplayWindow::SetWindowsMovable() Failed to setup DL_SetWindowHitTest");
+            CLogger::getInstance()->error("CDisplayWindow::SetWindowsMovable() DL_SetWindowHitTest Error: %s", SDL_GetError());
+        }
 
-    //Present first to display sprites before rendering background
-    SDL_RenderPresent(m_pWindowRenderer);
+        SDL_SetWindowResizable(m_pWindow, SDL_TRUE);
+    }
+    else
+    {
+        int success = SDL_SetWindowHitTest(m_pWindow, NULL, NULL);
+        if (success == -1)
+        {
+            LOG_ERROR("CDisplayWindow::SetWindowsMovable() Failed to unset DL_SetWindowHitTest");
+            CLogger::getInstance()->error("CDisplayWindow::SetWindowsMovable() DL_SetWindowHitTest Error: %s", SDL_GetError());
+        }
 
-    //Set the color to the render - R G B A
-    SDL_SetRenderDrawColor(m_pWindowRenderer, 0, 0, 200, 255);
-
-    SDL_RenderClear(m_pWindowRenderer);
+        SDL_SetWindowResizable(m_pWindow, SDL_FALSE);
+    }
 }

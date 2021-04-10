@@ -42,11 +42,11 @@ private:
 
     void ReadSettings();
 
-    SDL_Window* m_pWindow = nullptr;
-    int m_iWindowID = 0;
+    //SDL_Window* m_pWindow = nullptr;
+    //int m_iWindowID = 0;
 
 //    SDL_Surface*  m_pWindowSurface;
-    SDL_Renderer*   m_pWindowRenderer = nullptr;
+    //SDL_Renderer*   m_pWindowRenderer = nullptr;
     SDL_Event       m_windowEvent;
 
     CSharedMemory*  m_pSharedMemory = nullptr;
@@ -59,6 +59,9 @@ private:
     bool            m_bNetworked = false;
     string          m_sIpAddress = "";
     int             m_iPort = 0;
+
+    bool            m_bShowPositionInfo = false;
+    bool            m_bWindowsMovable = false;
 
     string          m_sHUDBackgroundImage = "";
     CDisplayWindow* m_pHUDWindow = nullptr;
