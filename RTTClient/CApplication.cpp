@@ -170,8 +170,7 @@ bool Application::SetupSDL()
     m_pWindow = SDL_CreateWindow("RTTClient",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        SCREEN_SIZE_X, SCREEN_SIZE_Y,
-        /* SDL_WINDOW_OPENGL |*/ SDL_WINDOW_SHOWN);
+        SCREEN_SIZE_X, SCREEN_SIZE_Y, SDL_WINDOW_MINIMIZED);
 
     if (!m_pWindow)
     {
@@ -336,7 +335,7 @@ void Application::RenderDisplays()
             if (m_pHUDWindow->IsClosed())
                 m_pHUDWindow->ShowWindow();
 
-            //m_pHUDWindow->MoveWindow(m_iHUD_X, m_iHUD_Y, m_iHUD_W, m_iHUD_H, m_iHUD_ONTOP);
+            m_pHUDWindow->MoveWindow(m_iHUD_X, m_iHUD_Y, m_iHUD_W, m_iHUD_H, m_iHUD_ONTOP);
             m_pHUDWindow->Render();
         }
     }
@@ -350,7 +349,7 @@ void Application::RenderDisplays()
             if (m_pPFLWindow->IsClosed())
                 m_pPFLWindow->ShowWindow();
 
-            //m_pPFLWindow->MoveWindow(m_iPFL_X, m_iPFL_Y, m_iPFL_W, m_iPFL_H, m_iPFL_ONTOP);
+            m_pPFLWindow->MoveWindow(m_iPFL_X, m_iPFL_Y, m_iPFL_W, m_iPFL_H, m_iPFL_ONTOP);
             m_pPFLWindow->Render();
         }
     }
@@ -364,7 +363,7 @@ void Application::RenderDisplays()
             if (m_pDEDWindow->IsClosed())
                 m_pDEDWindow->ShowWindow();
 
-            //m_pDEDWindow->MoveWindow(m_iDED_X, m_iDED_Y, m_iDED_W, m_iDED_H, m_iDED_ONTOP);
+            m_pDEDWindow->MoveWindow(m_iDED_X, m_iDED_Y, m_iDED_W, m_iDED_H, m_iDED_ONTOP);
             m_pDEDWindow->Render();
         }
     }
@@ -378,7 +377,7 @@ void Application::RenderDisplays()
             if (m_pRWRWindow->IsClosed())
                 m_pRWRWindow->ShowWindow();
 
-            //m_pRWRWindow->MoveWindow(m_iRWR_X, m_iRWR_Y, m_iRWR_W, m_iRWR_H, m_iRWR_ONTOP);
+            m_pRWRWindow->MoveWindow(m_iRWR_X, m_iRWR_Y, m_iRWR_W, m_iRWR_H, m_iRWR_ONTOP);
             m_pRWRWindow->Render();
         }
     }
@@ -392,7 +391,7 @@ void Application::RenderDisplays()
             if (m_pMFDLEFTWindow->IsClosed())
                 m_pMFDLEFTWindow->ShowWindow();
 
-            //m_pMFDLEFTWindow->MoveWindow(m_iMFDLEFT_X, m_iMFDLEFT_Y, m_iMFDLEFT_W, m_iMFDLEFT_H, m_iMFDLEFT_ONTOP);
+            m_pMFDLEFTWindow->MoveWindow(m_iMFDLEFT_X, m_iMFDLEFT_Y, m_iMFDLEFT_W, m_iMFDLEFT_H, m_iMFDLEFT_ONTOP);
             m_pMFDLEFTWindow->Render();
         }
     }
@@ -406,7 +405,7 @@ void Application::RenderDisplays()
             if (m_pMFDRIGHTWindow->IsClosed())
                 m_pMFDRIGHTWindow->ShowWindow();
 
-            //m_pMFDRIGHTWindow->MoveWindow(m_iMFDRIGHT_X, m_iMFDRIGHT_Y, m_iMFDRIGHT_W, m_iMFDRIGHT_H, m_iMFDRIGHT_ONTOP);
+            m_pMFDRIGHTWindow->MoveWindow(m_iMFDRIGHT_X, m_iMFDRIGHT_Y, m_iMFDRIGHT_W, m_iMFDRIGHT_H, m_iMFDRIGHT_ONTOP);
             m_pMFDRIGHTWindow->Render();
         }
     }
@@ -420,7 +419,7 @@ void Application::RenderDisplays()
             if (m_pHMSWindow->IsClosed())
                 m_pHMSWindow->ShowWindow();
 
-            //m_pHMSWindow->MoveWindow(m_iHMS_X, m_iHMS_Y, m_iHMS_W, m_iHMS_H, m_iHMS_ONTOP);
+            m_pHMSWindow->MoveWindow(m_iHMS_X, m_iHMS_Y, m_iHMS_W, m_iHMS_H, m_iHMS_ONTOP);
             m_pHMSWindow->Render();
         }
     }

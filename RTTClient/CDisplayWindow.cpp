@@ -1,4 +1,5 @@
 #include "CDisplayWindow.h"
+#include "SDL2_gfxPrimitives.h"
 
 #include <GL/glew.h>
 
@@ -10,7 +11,7 @@
 using namespace std;
 using namespace RTTClient::Common;
 
-CDisplayWindow::CDisplayWindow(const std::string& title, int x, int y, int width, int height, bool ontop) :
+CDisplayWindow::CDisplayWindow(const string& title, int x, int y, int width, int height, bool ontop) :
     m_sTitle(title), m_iWindow_X(x), m_iWindow_Y(y), m_iWindow_W(width), m_iWindow_H(height), m_bWindow_Ontop(ontop)
 {
     LOG_DEBUG("CDisplayWindow::CDisplayWindow() Begin");
@@ -26,6 +27,11 @@ CDisplayWindow::~CDisplayWindow()
     SDL_DestroyWindow(m_pWindow);
     m_pWindow = nullptr;
     LOG_DEBUG("CDisplayWindow::~CDisplayWindow() End");
+}
+
+void CDisplayWindow::SetBackgroundImage(string filename)
+{
+    //if (m_sBackgroundImage)
 }
 
 bool CDisplayWindow::Init()
@@ -82,12 +88,12 @@ bool CDisplayWindow::Init()
 
 void CDisplayWindow::Render()
 {
-
+    SDL_SetRenderDrawColor(m_pWindowRenderer, 0x00, 0x00, 0x00, 0x00);
     SDL_RenderClear(m_pWindowRenderer);
     
     if (m_bWindowShown)
     {
-
+        DrawDefaultBackground();
     }
     
     SDL_RenderPresent(m_pWindowRenderer);
@@ -125,27 +131,77 @@ void CDisplayWindow::Render()
     //SDL_GL_SwapWindow(m_pWindow);
 }
 
+void CDisplayWindow::DrawDefaultBackground()
+{
+    SDL_Rect outlineRect = { 0, 0, m_iWindow_W, m_iWindow_H };
+    SDL_SetRenderDrawColor(m_pWindowRenderer, 0xFF, 0x96, 0x00, 0xFF);
+    SDL_RenderDrawRect(m_pWindowRenderer, &outlineRect);
+
+    SDL_Rect outlineRect2 = { 1, 1, m_iWindow_W - 1, m_iWindow_H - 1 };
+    SDL_RenderDrawRect(m_pWindowRenderer, &outlineRect2);
+
+    aaellipseRGBA(m_pWindowRenderer, m_iWindow_W / 2, m_iWindow_H / 2, m_iWindow_W / 2, m_iWindow_H / 2, 0xFF, 0x96, 0x00, 0xFF);
+    aaellipseRGBA(m_pWindowRenderer, m_iWindow_W / 2, m_iWindow_H / 2, m_iWindow_W - 1 / 2, m_iWindow_H - 1 / 2, 0xFF, 0x96, 0x00, 0xFF);
+
+
+    aalineRGBA(m_pWindowRenderer, 4, 0, m_iWindow_W, m_iWindow_H - 4, 0xFF, 0x96, 0x00, 0xFF);
+    aalineRGBA(m_pWindowRenderer, 3, 0, m_iWindow_W, m_iWindow_H - 3, 0xFF, 0x96, 0x00, 0xFF);
+    aalineRGBA(m_pWindowRenderer, 2, 0, m_iWindow_W, m_iWindow_H - 2, 0xFF, 0x96, 0x00, 0xFF);
+    aalineRGBA(m_pWindowRenderer, 1, 0, m_iWindow_W, m_iWindow_H - 1, 0xFF, 0x96, 0x00, 0xFF);
+    aalineRGBA(m_pWindowRenderer, 0, 0, m_iWindow_W, m_iWindow_H, 0xFF, 0x96, 0x00, 0xFF);
+    aalineRGBA(m_pWindowRenderer, 0, 1, m_iWindow_W - 1, m_iWindow_H, 0xFF, 0x96, 0x00, 0xFF);
+    aalineRGBA(m_pWindowRenderer, 0, 2, m_iWindow_W - 2, m_iWindow_H, 0xFF, 0x96, 0x00, 0xFF);
+    aalineRGBA(m_pWindowRenderer, 0, 3, m_iWindow_W - 3, m_iWindow_H, 0xFF, 0x96, 0x00, 0xFF);
+    aalineRGBA(m_pWindowRenderer, 0, 4, m_iWindow_W - 4, m_iWindow_H, 0xFF, 0x96, 0x00, 0xFF);
+
+    aalineRGBA(m_pWindowRenderer, 0, m_iWindow_H - 4, m_iWindow_W - 4, 0, 0xFF, 0x96, 0x00, 0xFF);
+    aalineRGBA(m_pWindowRenderer, 0, m_iWindow_H - 3, m_iWindow_W - 3, 0, 0xFF, 0x96, 0x00, 0xFF);
+    aalineRGBA(m_pWindowRenderer, 0, m_iWindow_H - 2, m_iWindow_W - 2, 0, 0xFF, 0x96, 0x00, 0xFF);
+    aalineRGBA(m_pWindowRenderer, 0, m_iWindow_H - 1, m_iWindow_W - 1, 0, 0xFF, 0x96, 0x00, 0xFF);
+    aalineRGBA(m_pWindowRenderer, 0, m_iWindow_H, m_iWindow_W, 0, 0xFF, 0x96, 0x00, 0xFF);
+    aalineRGBA(m_pWindowRenderer, 1, m_iWindow_H, m_iWindow_W, 1, 0xFF, 0x96, 0x00, 0xFF);
+    aalineRGBA(m_pWindowRenderer, 2, m_iWindow_H, m_iWindow_W, 2, 0xFF, 0x96, 0x00, 0xFF);
+    aalineRGBA(m_pWindowRenderer, 3, m_iWindow_H, m_iWindow_W, 3, 0xFF, 0x96, 0x00, 0xFF);
+    aalineRGBA(m_pWindowRenderer, 4, m_iWindow_H, m_iWindow_W, 4, 0xFF, 0x96, 0x00, 0xFF);
+
+    //Draw vertical line of yellow dots
+    for (int i = 0; i < m_iWindow_H; i += 4)
+    {
+        SDL_RenderDrawPoint(m_pWindowRenderer, m_iWindow_W / 2, i);
+    }
+
+    //Draw horizontal line of yellow dots
+    for (int i = 0; i < m_iWindow_W; i += 4)
+    {
+        SDL_RenderDrawPoint(m_pWindowRenderer, i, m_iWindow_H / 2);
+    }
+}
+
 bool CDisplayWindow::HandleEvents(SDL_Event& event)
 {
     if (event.type == SDL_WINDOWEVENT && event.window.windowID == m_iWindowID)
     {
         switch (event.window.event)
         {
-            //Window appeared
+        //Window appeared
         case SDL_WINDOWEVENT_SHOWN:
             m_bWindowShown = true;
             break;
-            //Window disappeared
+        //Window disappeared
         case SDL_WINDOWEVENT_HIDDEN:
             m_bWindowShown = false;
             break;
-            //Get new dimensions and repaint
+        //Get new dimensions and repaint
         case SDL_WINDOWEVENT_SIZE_CHANGED:
             m_iWindow_W = m_windowEvent.window.data1;
             m_iWindow_H = m_windowEvent.window.data2;
             SDL_RenderPresent(m_pWindowRenderer);
             break;
-            //Repaint on expose
+        case SDL_WINDOWEVENT_MOVED:
+            m_iWindow_X = m_windowEvent.window.data1;
+            m_iWindow_Y = m_windowEvent.window.data2;
+            break;
+        //Repaint on expose
         case SDL_WINDOWEVENT_EXPOSED:
             SDL_RenderPresent(m_pWindowRenderer);
             break;
@@ -176,8 +232,19 @@ void CDisplayWindow::ShowWindow()
 
 void CDisplayWindow::MoveWindow(int x, int y, int width, int height, bool ontop)
 {
-    SDL_GetWindowPosition(m_pWindow, &x, &y);
-    SDL_GetWindowSize(m_pWindow, &width, &height);
+    if ((m_iWindow_X != x) || (m_iWindow_Y != y))
+    {
+        SDL_GetWindowPosition(m_pWindow, &x, &y);
+        m_iWindow_X = x;
+        m_iWindow_Y = y;
+    }
+
+    if ((m_iWindow_W != width) || (m_iWindow_H != height))
+    {
+        SDL_GetWindowSize(m_pWindow, &width, &height);
+        m_iWindow_W = width;
+        m_iWindow_H = height;
+    }
 }
 
 void CDisplayWindow::CloseWindow()

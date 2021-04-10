@@ -335,7 +335,7 @@ void CNetworkManager::Pulse()
 			{
 				LOG_DEBUG("CNetworkManager::Pulse() MSG_HANDSHAKE Begin");
 
-				RakNet::BitStream bitstream(g_Packet->data + 1, g_Packet->length + 1, false);
+				RakNet::BitStream bitstream(g_Packet->data + 1, g_Packet->length - 1, false);
 				unsigned char value;
 				bitstream.Read(value);
 				bitstream.Read(value);
@@ -374,6 +374,7 @@ void CNetworkManager::Pulse()
 			case MSG_IMAGE:
 			{
 				LOG_DEBUG("CNetworkManager::Pulse() MSG_IMAGE Begin");
+				RakNet::BitStream bitstream(g_Packet->data + 1, g_Packet->length - 1, false);
 
 				LOG_DEBUG("CNetworkManager::Pulse() MSG_IMAGE End");
 				break;
