@@ -43,7 +43,7 @@ private:
 	RakNet::RakPeerInterface* m_pRakPeer = nullptr;
 
 	/* Previous/Current connection */
-	std::string				m_sLastIP;
+	std::string				m_sLastIP = "";
 	int						m_iLastPort = 0;
 	RakNet::SystemAddress	m_SystemAddr;
 	bool					m_bValidHandshake = false;

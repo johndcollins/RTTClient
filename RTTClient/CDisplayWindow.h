@@ -28,17 +28,27 @@ public:
     inline bool IsClosed() const { return !m_bWindowShown; }
     inline bool IsCreated() const { return m_bWindow_Created; }
 
+    inline void SetFlipImageVertically(bool set) { m_bFlipImageVertically = set; }
+    inline void SetFlipImageHorizontally(bool set) { m_bFlipImageHorizontally = set; }
+
+    inline void SetUseDefaultWidth(bool set) { m_bDefaultSize_W = set; }
+    inline void SetUseDefaultHeight(bool set) { m_bDefaultSize_H = set; }
+
 private:
     bool Init();
 
+    SDL_Texture* LoadTexture(string path);
+
     void DrawDefaultBackground();
+    void LoadBackground();
+    void DrawBackground();
 
-    //SDL_Surface* horizontal_mirror(SDL_Surface* sfc);
-    //SDL_Surface* flip_vertically(SDL_Surface* sfc);
+    static SDL_HitTestResult DraggingCallback(SDL_Window* win, const SDL_Point* area, void* data);
 
-    SDL_Window* m_pWindow = nullptr;
+    SDL_Window*     m_pWindow = nullptr;
     SDL_Renderer*   m_pWindowRenderer = nullptr;
-    //SDL_GLContext   m_pGLContext;
+    SDL_Texture*    m_pTexture = nullptr;
+    SDL_Texture*    m_pLastTexture = nullptr;
 
     SDL_Event       m_windowEvent;
 
@@ -53,4 +63,9 @@ private:
     bool            m_bWindowShown = false;
 
     string          m_sBackgroundImage;
+    bool            m_bFlipImageHorizontally = false;
+    bool            m_bFlipImageVertically = false;
+    bool            m_bDefaultSize_W = false;
+    bool            m_bDefaultSize_H = false;
+
 };

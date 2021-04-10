@@ -59,8 +59,6 @@ void Application::Loop()
 {
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 
-    LoadBackground();
-
     bool keep_window_open = true;
     while (keep_window_open)
     {
@@ -215,35 +213,6 @@ bool Application::SetupSDL()
     return true;
 }
 
-void Application::LoadBackground()
-{
-    string filename("");
-    m_pConfigReader->getValue("BACKGOUND_IMG", filename);
-
-    m_pImage = NULL;
-    if (filename != "")
-        m_pImage = IMG_Load(filename.c_str());
-
-    m_imagePosition.x = 0;
-    m_imagePosition.y = 0;
-    m_imagePosition.w = SCREEN_SIZE_X;
-    m_imagePosition.h = SCREEN_SIZE_Y;
-}
-
-void Application::DrawBackground()
-{
-    SDL_Rect rect;
-    rect.x = 0;
-    rect.y = 0;
-    rect.w = SCREEN_SIZE_X;
-    rect.h = SCREEN_SIZE_Y;
-
-    SDL_SetRenderDrawColor(m_pWindowRenderer, 255, 255, 255, 255);
-    SDL_RenderDrawRect(m_pWindowRenderer, &rect);
-
-    SDL_SetRenderDrawColor(m_pWindowRenderer, 0, 0, 0, 255);
-}
-
 void Application::Update()
 {
     m_iLastFrame = SDL_GetTicks();
@@ -270,9 +239,6 @@ void Application::Render()
     m_iTimerFPS = SDL_GetTicks() - m_iLastFrame;
     if (m_iTimerFPS < (1000 / m_iFps))
     {
-        if (m_pImage == NULL)
-            DrawBackground();
-    
         RenderDisplays();
     }
 
@@ -329,13 +295,21 @@ void Application::RenderDisplays()
     if (m_bUseHUD)
     {
         if (m_pHUDWindow == nullptr)
-            m_pHUDWindow = new CDisplayWindow("HUD", m_iHUD_X, m_iHUD_Y, m_iHUD_W, m_iHUD_H, m_iHUD_ONTOP);
+        {
+            m_pHUDWindow = new CDisplayWindow("HUD", m_iHUD_X, m_iHUD_Y, m_iHUD_W, m_iHUD_H, m_bHUD_ONTOP);
+            m_pHUDWindow->SetBackgroundImage(m_sHUDBackgroundImage);
+
+            m_pHUDWindow->SetFlipImageVertically(m_bHUDFlippedVertically);
+            m_pHUDWindow->SetFlipImageHorizontally(m_bHUDFlippedHorizontically);
+            m_pHUDWindow->SetUseDefaultWidth(m_bHUDDefaultSize_W);
+            m_pHUDWindow->SetUseDefaultHeight(m_bHUDDefaultSize_H);
+        }
         else
         {
             if (m_pHUDWindow->IsClosed())
                 m_pHUDWindow->ShowWindow();
 
-            m_pHUDWindow->MoveWindow(m_iHUD_X, m_iHUD_Y, m_iHUD_W, m_iHUD_H, m_iHUD_ONTOP);
+            m_pHUDWindow->MoveWindow(m_iHUD_X, m_iHUD_Y, m_iHUD_W, m_iHUD_H, m_bHUD_ONTOP);
             m_pHUDWindow->Render();
         }
     }
@@ -343,13 +317,21 @@ void Application::RenderDisplays()
     if (m_bUsePFL)
     {
         if (m_pPFLWindow == nullptr)
-            m_pPFLWindow = new CDisplayWindow("PFL", m_iPFL_X, m_iPFL_Y, m_iPFL_W, m_iPFL_H, m_iPFL_ONTOP);
+        {
+            m_pPFLWindow = new CDisplayWindow("PFL", m_iPFL_X, m_iPFL_Y, m_iPFL_W, m_iPFL_H, m_bPFL_ONTOP);
+            m_pPFLWindow->SetBackgroundImage(m_sPFLBackgroundImage);
+
+            m_pPFLWindow->SetFlipImageVertically(m_bPFLFlippedVertically);
+            m_pPFLWindow->SetFlipImageHorizontally(m_bPFLFlippedHorizontically);
+            m_pPFLWindow->SetUseDefaultWidth(m_bPFLDefaultSize_W);
+            m_pPFLWindow->SetUseDefaultHeight(m_bPFLDefaultSize_H);
+        }
         else
         {
             if (m_pPFLWindow->IsClosed())
                 m_pPFLWindow->ShowWindow();
 
-            m_pPFLWindow->MoveWindow(m_iPFL_X, m_iPFL_Y, m_iPFL_W, m_iPFL_H, m_iPFL_ONTOP);
+            m_pPFLWindow->MoveWindow(m_iPFL_X, m_iPFL_Y, m_iPFL_W, m_iPFL_H, m_bPFL_ONTOP);
             m_pPFLWindow->Render();
         }
     }
@@ -357,13 +339,21 @@ void Application::RenderDisplays()
     if (m_bUseDED)
     {
         if (m_pDEDWindow == nullptr)
-            m_pDEDWindow = new CDisplayWindow("DED", m_iDED_X, m_iDED_Y, m_iDED_W, m_iDED_H, m_iDED_ONTOP);
+        {
+            m_pDEDWindow = new CDisplayWindow("DED", m_iDED_X, m_iDED_Y, m_iDED_W, m_iDED_H, m_bDED_ONTOP);
+            m_pDEDWindow->SetBackgroundImage(m_sDEDBackgroundImage);
+
+            m_pDEDWindow->SetFlipImageVertically(m_bDEDFlippedVertically);
+            m_pDEDWindow->SetFlipImageHorizontally(m_bDEDFlippedHorizontically);
+            m_pDEDWindow->SetUseDefaultWidth(m_bDEDDefaultSize_W);
+            m_pDEDWindow->SetUseDefaultHeight(m_bDEDDefaultSize_H);
+        }
         else
         {
             if (m_pDEDWindow->IsClosed())
                 m_pDEDWindow->ShowWindow();
 
-            m_pDEDWindow->MoveWindow(m_iDED_X, m_iDED_Y, m_iDED_W, m_iDED_H, m_iDED_ONTOP);
+            m_pDEDWindow->MoveWindow(m_iDED_X, m_iDED_Y, m_iDED_W, m_iDED_H, m_bDED_ONTOP);
             m_pDEDWindow->Render();
         }
     }
@@ -371,13 +361,21 @@ void Application::RenderDisplays()
     if (m_bUseRWR)
     {
         if (m_pRWRWindow == nullptr)
-            m_pRWRWindow = new CDisplayWindow("RWR", m_iRWR_X, m_iRWR_Y, m_iRWR_W, m_iRWR_H, m_iRWR_ONTOP);
+        {
+            m_pRWRWindow = new CDisplayWindow("RWR", m_iRWR_X, m_iRWR_Y, m_iRWR_W, m_iRWR_H, m_bRWR_ONTOP);
+            m_pRWRWindow->SetBackgroundImage(m_sRWRBackgroundImage);
+
+            m_pRWRWindow->SetFlipImageVertically(m_bRWRFlippedVertically);
+            m_pRWRWindow->SetFlipImageHorizontally(m_bRWRFlippedHorizontically);
+            m_pRWRWindow->SetUseDefaultWidth(m_bRWRDefaultSize_W);
+            m_pRWRWindow->SetUseDefaultHeight(m_bRWRDefaultSize_H);
+        }
         else
         {
             if (m_pRWRWindow->IsClosed())
                 m_pRWRWindow->ShowWindow();
 
-            m_pRWRWindow->MoveWindow(m_iRWR_X, m_iRWR_Y, m_iRWR_W, m_iRWR_H, m_iRWR_ONTOP);
+            m_pRWRWindow->MoveWindow(m_iRWR_X, m_iRWR_Y, m_iRWR_W, m_iRWR_H, m_bRWR_ONTOP);
             m_pRWRWindow->Render();
         }
     }
@@ -385,13 +383,21 @@ void Application::RenderDisplays()
     if (m_bUseMFDLEFT)
     {
         if (m_pMFDLEFTWindow == nullptr)
-            m_pMFDLEFTWindow = new CDisplayWindow("LEFT MFD", m_iMFDLEFT_X, m_iMFDLEFT_Y, m_iMFDLEFT_W, m_iMFDLEFT_H, m_iMFDLEFT_ONTOP);
+        {
+            m_pMFDLEFTWindow = new CDisplayWindow("LEFT MFD", m_iMFDLEFT_X, m_iMFDLEFT_Y, m_iMFDLEFT_W, m_iMFDLEFT_H, m_bMFDLEFT_ONTOP);
+            m_pMFDLEFTWindow->SetBackgroundImage(m_sMFDLEFTBackgroundImage);
+
+            m_pMFDLEFTWindow->SetFlipImageVertically(m_bMFDLEFTFlippedVertically);
+            m_pMFDLEFTWindow->SetFlipImageHorizontally(m_bMFDLEFTFlippedHorizontically);
+            m_pMFDLEFTWindow->SetUseDefaultWidth(m_bMFDLEFTDefaultSize_W);
+            m_pMFDLEFTWindow->SetUseDefaultHeight(m_bMFDLEFTDefaultSize_H);
+        }
         else
         {
             if (m_pMFDLEFTWindow->IsClosed())
                 m_pMFDLEFTWindow->ShowWindow();
 
-            m_pMFDLEFTWindow->MoveWindow(m_iMFDLEFT_X, m_iMFDLEFT_Y, m_iMFDLEFT_W, m_iMFDLEFT_H, m_iMFDLEFT_ONTOP);
+            m_pMFDLEFTWindow->MoveWindow(m_iMFDLEFT_X, m_iMFDLEFT_Y, m_iMFDLEFT_W, m_iMFDLEFT_H, m_bMFDLEFT_ONTOP);
             m_pMFDLEFTWindow->Render();
         }
     }
@@ -399,13 +405,21 @@ void Application::RenderDisplays()
     if (m_bUseMFDRIGHT)
     {
         if (m_pMFDRIGHTWindow == nullptr)
-            m_pMFDRIGHTWindow = new CDisplayWindow("RIGHT MFD", m_iMFDRIGHT_X, m_iMFDRIGHT_Y, m_iMFDRIGHT_W, m_iMFDRIGHT_H, m_iMFDRIGHT_ONTOP);
+        {
+            m_pMFDRIGHTWindow = new CDisplayWindow("RIGHT MFD", m_iMFDRIGHT_X, m_iMFDRIGHT_Y, m_iMFDRIGHT_W, m_iMFDRIGHT_H, m_bMFDRIGHT_ONTOP);
+            m_pMFDRIGHTWindow->SetBackgroundImage(m_sMFDRIGHTBackgroundImage);
+
+            m_pMFDRIGHTWindow->SetFlipImageVertically(m_bMFDRIGHTFlippedVertically);
+            m_pMFDRIGHTWindow->SetFlipImageHorizontally(m_bMFDRIGHTFlippedHorizontically);
+            m_pMFDRIGHTWindow->SetUseDefaultWidth(m_bMFDRIGHTDefaultSize_W);
+            m_pMFDRIGHTWindow->SetUseDefaultHeight(m_bMFDRIGHTDefaultSize_H);
+        }
         else
         {
             if (m_pMFDRIGHTWindow->IsClosed())
                 m_pMFDRIGHTWindow->ShowWindow();
 
-            m_pMFDRIGHTWindow->MoveWindow(m_iMFDRIGHT_X, m_iMFDRIGHT_Y, m_iMFDRIGHT_W, m_iMFDRIGHT_H, m_iMFDRIGHT_ONTOP);
+            m_pMFDRIGHTWindow->MoveWindow(m_iMFDRIGHT_X, m_iMFDRIGHT_Y, m_iMFDRIGHT_W, m_iMFDRIGHT_H, m_bMFDRIGHT_ONTOP);
             m_pMFDRIGHTWindow->Render();
         }
     }
@@ -413,13 +427,21 @@ void Application::RenderDisplays()
     if (m_bUseHMS)
     {
         if (m_pHMSWindow == nullptr)
-            m_pHMSWindow = new CDisplayWindow("HMS", m_iHMS_X, m_iHMS_Y, m_iHMS_W, m_iHMS_H, m_iHMS_ONTOP);
+        {
+            m_pHMSWindow = new CDisplayWindow("HMS", m_iHMS_X, m_iHMS_Y, m_iHMS_W, m_iHMS_H, m_bHMS_ONTOP);
+            m_pHMSWindow->SetBackgroundImage(m_sHMSBackgroundImage);
+
+            m_pHMSWindow->SetFlipImageVertically(m_bHMSFlippedVertically);
+            m_pHMSWindow->SetFlipImageHorizontally(m_bHMSFlippedHorizontically);
+            m_pHMSWindow->SetUseDefaultWidth(m_bHMSDefaultSize_W);
+            m_pHMSWindow->SetUseDefaultHeight(m_bHMSDefaultSize_H);
+        }
         else
         {
             if (m_pHMSWindow->IsClosed())
                 m_pHMSWindow->ShowWindow();
 
-            m_pHMSWindow->MoveWindow(m_iHMS_X, m_iHMS_Y, m_iHMS_W, m_iHMS_H, m_iHMS_ONTOP);
+            m_pHMSWindow->MoveWindow(m_iHMS_X, m_iHMS_Y, m_iHMS_W, m_iHMS_H, m_bHMS_ONTOP);
             m_pHMSWindow->Render();
         }
     }
@@ -515,8 +537,17 @@ void Application::ReadSettings()
         m_iFps = 30;
     CLogger::getInstance()->debug("   FPS : %d", m_iFps);
 
+    m_pConfigReader->getValue("HUD_BACKGROUND_IMAGE", m_sHUDBackgroundImage);
+    CLogger::getInstance()->debug("   HUD_BACKGROUND_IMAGE : %s", m_sHUDBackgroundImage.c_str());
+
     m_pConfigReader->getValue("USE_HUD", m_bUseHUD);
     CLogger::getInstance()->debug("   HUD : %s", m_bUseHUD ? "true" : "false");
+
+    m_pConfigReader->getValue("HUD_FLIPPED_VERTICALLY", m_bHUDFlippedVertically);
+    CLogger::getInstance()->debug("   HUD Flipped Vertically : %s", m_bHUDFlippedVertically ? "true" : "false");
+
+    m_pConfigReader->getValue("HUD_FLIPPED_HORIZONTICALLY", m_bHUDFlippedHorizontically);
+    CLogger::getInstance()->debug("   HUD Flipped Horizontically : %s", m_bHUDFlippedHorizontically ? "true" : "false");
 
     m_pConfigReader->getValue("HUD_X", m_iHUD_X);
     CLogger::getInstance()->debug("   HUD X : %d", m_iHUD_X);
@@ -525,17 +556,32 @@ void Application::ReadSettings()
     CLogger::getInstance()->debug("   HUD Y : %d", m_iHUD_Y);
 
     m_pConfigReader->getValue("HUD_W", m_iHUD_W);
-    if (m_iHUD_W <= 0)
-        m_iHUD_W = 600;
     CLogger::getInstance()->debug("   HUD W : %d", m_iHUD_W);
+    if (m_iHUD_W <= 0)
+    {
+        m_bHUDDefaultSize_W = true;
+        m_iHUD_W = 600;
+    }
 
     m_pConfigReader->getValue("HUD_H", m_iHUD_H);
-    if (m_iHUD_H <= 0)
-        m_iHUD_H = 600;
     CLogger::getInstance()->debug("   HUD H : %d", m_iHUD_H);
+    if (m_iHUD_H <= 0)
+    {
+        m_bHUDDefaultSize_H = true;
+        m_iHUD_H = 600;
+    }
 
-    m_pConfigReader->getValue("HUD_ONTOP", m_iHUD_ONTOP);
-    CLogger::getInstance()->debug("   HUD ONTOP : %s", m_iHUD_ONTOP ? "true" : "false");
+    m_pConfigReader->getValue("HUD_ONTOP", m_bHUD_ONTOP);
+    CLogger::getInstance()->debug("   HUD ONTOP : %s", m_bHUD_ONTOP ? "true" : "false");
+
+    m_pConfigReader->getValue("PFL_FLIPPED_VERTICALLY", m_bPFLFlippedVertically);
+    CLogger::getInstance()->debug("   PFL Flipped Vertically : %s", m_bPFLFlippedVertically ? "true" : "false");
+
+    m_pConfigReader->getValue("PFL_FLIPPED_HORIZONTICALLY", m_bPFLFlippedHorizontically);
+    CLogger::getInstance()->debug("   PFL Flipped Horizontically : %s", m_bPFLFlippedHorizontically ? "true" : "false");
+
+    m_pConfigReader->getValue("PFL_BACKGROUND_IMAGE", m_sPFLBackgroundImage);
+    CLogger::getInstance()->debug("   PFL_BACKGROUND_IMAGE : %s", m_sPFLBackgroundImage.c_str());
 
     m_pConfigReader->getValue("USE_PFL", m_bUsePFL);
     CLogger::getInstance()->debug("   PFL : %s", m_bUsePFL ? "true" : "false");
@@ -547,20 +593,35 @@ void Application::ReadSettings()
     CLogger::getInstance()->debug("   PFL Y : %d", m_iPFL_Y);
 
     m_pConfigReader->getValue("PFL_W", m_iPFL_W);
-    if (m_iPFL_W <= 0)
-        m_iPFL_W = 600;
     CLogger::getInstance()->debug("   PFL W : %d", m_iPFL_W);
+    if (m_iPFL_W <= 0)
+    {
+        m_bPFLDefaultSize_W = true;
+        m_iPFL_W = 600;
+    }
 
     m_pConfigReader->getValue("PFL_H", m_iPFL_H);
-    if (m_iPFL_H <= 0)
-        m_iPFL_H = 600;
     CLogger::getInstance()->debug("   PFL H : %d", m_iPFL_H);
+    if (m_iPFL_H <= 0)
+    {
+        m_bPFLDefaultSize_H = true;
+        m_iPFL_H = 600;
+    }
 
-    m_pConfigReader->getValue("PFL_ONTOP", m_iPFL_ONTOP);
-    CLogger::getInstance()->debug("   PFL ONTOP : %s", m_iPFL_ONTOP ? "true" : "false");
+    m_pConfigReader->getValue("PFL_ONTOP", m_bPFL_ONTOP);
+    CLogger::getInstance()->debug("   PFL ONTOP : %s", m_bPFL_ONTOP ? "true" : "false");
+
+    m_pConfigReader->getValue("DED_BACKGROUND_IMAGE", m_sDEDBackgroundImage);
+    CLogger::getInstance()->debug("   DED_BACKGROUND_IMAGE : %s", m_sDEDBackgroundImage.c_str());
 
     m_pConfigReader->getValue("USE_DED", m_bUseDED);
     CLogger::getInstance()->debug("   DED : %s", m_bUseDED ? "true" : "false");
+
+    m_pConfigReader->getValue("DED_FLIPPED_VERTICALLY", m_bDEDFlippedVertically);
+    CLogger::getInstance()->debug("   DED Flipped Vertically : %s", m_bDEDFlippedVertically ? "true" : "false");
+
+    m_pConfigReader->getValue("DED_FLIPPED_HORIZONTICALLY", m_bDEDFlippedHorizontically);
+    CLogger::getInstance()->debug("   DED Flipped Horizontically : %s", m_bDEDFlippedHorizontically ? "true" : "false");
 
     m_pConfigReader->getValue("DED_X", m_iDED_X);
     CLogger::getInstance()->debug("   DED X : %d", m_iDED_X);
@@ -569,20 +630,35 @@ void Application::ReadSettings()
     CLogger::getInstance()->debug("   DED Y : %d", m_iDED_Y);
 
     m_pConfigReader->getValue("DED_W", m_iDED_W);
-    if (m_iDED_W <= 0)
-        m_iDED_W = 600;
     CLogger::getInstance()->debug("   DED W : %d", m_iDED_W);
+    if (m_iDED_W <= 0)
+    {
+        m_bDEDDefaultSize_W = true;
+        m_iDED_W = 600;
+    }
 
     m_pConfigReader->getValue("DED_H", m_iDED_H);
-    if (m_iDED_H <= 0)
-        m_iDED_H = 600;
     CLogger::getInstance()->debug("   DED H : %d", m_iDED_H);
+    if (m_iDED_H <= 0)
+    {
+        m_bDEDDefaultSize_H = true;
+        m_iDED_H = 600;
+    }
 
-    m_pConfigReader->getValue("DED_ONTOP", m_iDED_ONTOP);
-    CLogger::getInstance()->debug("   DED ONTOP : %s", m_iDED_ONTOP ? "true" : "false");
+    m_pConfigReader->getValue("DED_ONTOP", m_bDED_ONTOP);
+    CLogger::getInstance()->debug("   DED ONTOP : %s", m_bDED_ONTOP ? "true" : "false");
+
+    m_pConfigReader->getValue("RWR_BACKGROUND_IMAGE", m_sRWRBackgroundImage);
+    CLogger::getInstance()->debug("   RWR_BACKGROUND_IMAGE : %s", m_sRWRBackgroundImage.c_str());
 
     m_pConfigReader->getValue("USE_RWR", m_bUseRWR);
     CLogger::getInstance()->debug("   RWR : %s", m_bUseRWR ? "true" : "false");
+
+    m_pConfigReader->getValue("RWR_FLIPPED_VERTICALLY", m_bRWRFlippedVertically);
+    CLogger::getInstance()->debug("   RWR Flipped Vertically : %s", m_bRWRFlippedVertically ? "true" : "false");
+
+    m_pConfigReader->getValue("RWR_FLIPPED_HORIZONTICALLY", m_bRWRFlippedHorizontically);
+    CLogger::getInstance()->debug("   RWR Flipped Horizontically : %s", m_bRWRFlippedHorizontically ? "true" : "false");
 
     m_pConfigReader->getValue("RWR_X", m_iRWR_X);
     CLogger::getInstance()->debug("   RWR X : %d", m_iRWR_X);
@@ -591,21 +667,36 @@ void Application::ReadSettings()
     CLogger::getInstance()->debug("   RWR Y : %d", m_iRWR_Y);
 
     m_pConfigReader->getValue("RWR_W", m_iRWR_W);
-    if (m_iRWR_W <= 0)
-        m_iRWR_W = 600;
     CLogger::getInstance()->debug("   RWR W : %d", m_iRWR_W);
+    if (m_iRWR_W <= 0)
+    {
+        m_bRWRDefaultSize_W = true;
+        m_iRWR_W = 600;
+    }
 
     m_pConfigReader->getValue("RWR_H", m_iRWR_H);
-    if (m_iRWR_H <= 0)
-        m_iRWR_H = 600;
     CLogger::getInstance()->debug("   RWR H : %d", m_iRWR_H);
+    if (m_iRWR_H <= 0)
+    {
+        m_bRWRDefaultSize_H = true;
+        m_iRWR_H = 600;
+    }
 
-    m_pConfigReader->getValue("RWR_ONTOP", m_iRWR_ONTOP);
-    CLogger::getInstance()->debug("   RWR ONTOP : %s", m_iRWR_ONTOP ? "true" : "false");
+    m_pConfigReader->getValue("RWR_ONTOP", m_bRWR_ONTOP);
+    CLogger::getInstance()->debug("   RWR ONTOP : %s", m_bRWR_ONTOP ? "true" : "false");
+
+    m_pConfigReader->getValue("MFDLEFT_BACKGROUND_IMAGE", m_sMFDLEFTBackgroundImage);
+    CLogger::getInstance()->debug("   MFDLEFT_BACKGROUND_IMAGE : %s", m_sMFDLEFTBackgroundImage.c_str());
 
     m_pConfigReader->getValue("USE_MFDLEFT", m_bUseMFDLEFT);
     CLogger::getInstance()->debug("   LEFT MFD : %s", m_bUseMFDLEFT ? "true" : "false");
-    
+
+    m_pConfigReader->getValue("MFDLEFT_FLIPPED_VERTICALLY", m_bMFDLEFTFlippedVertically);
+    CLogger::getInstance()->debug("   MFDLEFT Flipped Vertically : %s", m_bMFDLEFTFlippedVertically ? "true" : "false");
+
+    m_pConfigReader->getValue("MFDLEFT_FLIPPED_HORIZONTICALLY", m_bMFDLEFTFlippedHorizontically);
+    CLogger::getInstance()->debug("   MFDLEFT Flipped Horizontically : %s", m_bMFDLEFTFlippedHorizontically ? "true" : "false");
+
     m_pConfigReader->getValue("MFDLEFT_X", m_iMFDLEFT_X);
     CLogger::getInstance()->debug("   LEFT MFD X : %d", m_iMFDLEFT_X);
 
@@ -613,20 +704,35 @@ void Application::ReadSettings()
     CLogger::getInstance()->debug("   LEFT MFD Y : %d", m_iMFDLEFT_Y);
 
     m_pConfigReader->getValue("MFDLEFT_W", m_iMFDLEFT_W);
-    if (m_iMFDLEFT_W <= 0)
-        m_iMFDLEFT_W = 600;
     CLogger::getInstance()->debug("   LEFT MFD W : %d", m_iMFDLEFT_W);
+    if (m_iMFDLEFT_W <= 0)
+    {
+        m_bMFDLEFTDefaultSize_W = true;
+        m_iMFDLEFT_W = 600;
+    }
 
     m_pConfigReader->getValue("MFDLEFT_H", m_iMFDLEFT_H);
-    if (m_iMFDLEFT_H <= 0)
-        m_iMFDLEFT_H = 600;
     CLogger::getInstance()->debug("   LEFT MFD H : %d", m_iMFDLEFT_H);
+    if (m_iMFDLEFT_H <= 0)
+    {
+        m_bMFDLEFTDefaultSize_H = true;
+        m_iMFDLEFT_H = 600;
+    }
 
-    m_pConfigReader->getValue("MFDLEFT_ONTOP", m_iMFDLEFT_ONTOP);
-    CLogger::getInstance()->debug("   LEFT MFD ONTOP : %s", m_iMFDLEFT_ONTOP ? "true" : "false");
+    m_pConfigReader->getValue("MFDLEFT_ONTOP", m_bMFDLEFT_ONTOP);
+    CLogger::getInstance()->debug("   LEFT MFD ONTOP : %s", m_bMFDLEFT_ONTOP ? "true" : "false");
+
+    m_pConfigReader->getValue("MFDRIGHT_BACKGROUND_IMAGE", m_sMFDRIGHTBackgroundImage);
+    CLogger::getInstance()->debug("   MFDRIGHT_BACKGROUND_IMAGE : %s", m_sMFDRIGHTBackgroundImage.c_str());
 
     m_pConfigReader->getValue("USE_MFDRIGHT", m_bUseMFDRIGHT);
     CLogger::getInstance()->debug("   RIGHT MFD : %s", m_bUseMFDRIGHT ? "true" : "false");
+
+    m_pConfigReader->getValue("MFDRIGHT_FLIPPED_VERTICALLY", m_bMFDRIGHTFlippedVertically);
+    CLogger::getInstance()->debug("   MFDRIGHT Flipped Vertically : %s", m_bMFDRIGHTFlippedVertically ? "true" : "false");
+
+    m_pConfigReader->getValue("MFDRIGHT_FLIPPED_HORIZONTICALLY", m_bMFDRIGHTFlippedHorizontically);
+    CLogger::getInstance()->debug("   MFDRIGHT Flipped Horizontically : %s", m_bMFDRIGHTFlippedHorizontically ? "true" : "false");
 
     m_pConfigReader->getValue("MFDRIGHT_X", m_iMFDRIGHT_X);
     CLogger::getInstance()->debug("   RIGHT MFD X : %d", m_iMFDRIGHT_X);
@@ -635,20 +741,36 @@ void Application::ReadSettings()
     CLogger::getInstance()->debug("   RIGHT MFD Y : %d", m_iMFDRIGHT_Y);
 
     m_pConfigReader->getValue("MFDLEFT_W", m_iMFDRIGHT_W);
-    if (m_iMFDRIGHT_W <= 0)
-        m_iMFDRIGHT_W = 800;
     CLogger::getInstance()->debug("   RIGHT MFD W : %d", m_iMFDRIGHT_W);
+    if (m_iMFDRIGHT_W <= 0)
+    {
+        m_bMFDRIGHTDefaultSize_W = true;
+        m_iMFDRIGHT_W = 800;
+    }
 
     m_pConfigReader->getValue("MFDLEFT_H", m_iMFDRIGHT_H);
-    if (m_iMFDRIGHT_H <= 0)
-        m_iMFDRIGHT_H = 600;
     CLogger::getInstance()->debug("   RIGHT MFD H : %d", m_iMFDRIGHT_H);
+    if (m_iMFDRIGHT_H <= 0)
+    {
+        m_bMFDRIGHTDefaultSize_H = true;
+        m_iMFDRIGHT_H = 600;
+    }
 
-    m_pConfigReader->getValue("MFDLEFT_ONTOP", m_iMFDRIGHT_ONTOP);
-    CLogger::getInstance()->debug("   RIGHT MFD ONTOP : %s", m_iMFDRIGHT_ONTOP ? "true" : "false");
+    m_pConfigReader->getValue("MFDLEFT_ONTOP", m_bMFDRIGHT_ONTOP);
+    CLogger::getInstance()->debug("   RIGHT MFD ONTOP : %s", m_bMFDRIGHT_ONTOP ? "true" : "false");
+
+    m_pConfigReader->getValue("HMS_BACKGROUND_IMAGE", m_sHMSBackgroundImage);
+    CLogger::getInstance()->debug("   HMS_BACKGROUND_IMAGE : %s", m_sHMSBackgroundImage.c_str());
 
     m_pConfigReader->getValue("USE_HMS", m_bUseHMS);
     CLogger::getInstance()->debug("   HMS : %s", m_bUseHMS ? "true" : "false");
+    
+    m_pConfigReader->getValue("HMS_FLIPPED_VERTICALLY", m_bHMSFlippedVertically);
+    CLogger::getInstance()->debug("   HMS Flipped Vertically : %s", m_bHMSFlippedVertically ? "true" : "false");
+
+    m_pConfigReader->getValue("HMS_FLIPPED_HORIZONTICALLY", m_bHMSFlippedHorizontically);
+    CLogger::getInstance()->debug("   HMS Flipped Horizontically : %s", m_bHMSFlippedHorizontically ? "true" : "false");
+
     m_pConfigReader->getValue("HMS_X", m_iHMS_X);
     CLogger::getInstance()->debug("   HMS X : %d", m_iHMS_X);
 
@@ -656,15 +778,21 @@ void Application::ReadSettings()
     CLogger::getInstance()->debug("   HMS Y : %d", m_iHMS_Y);
 
     m_pConfigReader->getValue("HMS_W", m_iHMS_W);
-    if (m_iHMS_W <= 0)
-        m_iHMS_W = 600;
     CLogger::getInstance()->debug("   HMS W : %d", m_iHMS_W);
+    if (m_iHMS_W <= 0)
+    {
+        m_bHMSDefaultSize_W = true;
+        m_iHMS_W = 600;
+    }
 
     m_pConfigReader->getValue("HMS_H", m_iHMS_H);
-    if (m_iHMS_H <= 0)
-        m_iHMS_H = 600;
     CLogger::getInstance()->debug("   HMS H : %d", m_iHMS_H);
+    if (m_iHMS_H <= 0)
+    {
+        m_bHMSDefaultSize_H = true;
+        m_iHMS_H = 600;
+    }
 
-    m_pConfigReader->getValue("HMS_ONTOP", m_iHMS_ONTOP);
-    CLogger::getInstance()->debug("   HMS ONTOP : %s", m_iHMS_ONTOP ? "true" : "false");
+    m_pConfigReader->getValue("HMS_ONTOP", m_bHMS_ONTOP);
+    CLogger::getInstance()->debug("   HMS ONTOP : %s", m_bHMS_ONTOP ? "true" : "false");
 }

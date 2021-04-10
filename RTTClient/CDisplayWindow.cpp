@@ -1,5 +1,9 @@
+#include <libgen.h>         // dirname
+#include <unistd.h>         // readlink
+#include <linux/limits.h>   // PATH_MAX
+
 #include "CDisplayWindow.h"
-#include "SDL2_gfxPrimitives.h"
+#include "SDL2_Gfx/SDL2_gfxPrimitives.h"
 
 #include <GL/glew.h>
 
@@ -22,8 +26,11 @@ CDisplayWindow::CDisplayWindow(const string& title, int x, int y, int width, int
 CDisplayWindow::~CDisplayWindow()
 {
     LOG_DEBUG("CDisplayWindow::~CDisplayWindow() Begin");
+    SDL_DestroyTexture(m_pTexture);
+    m_pTexture = nullptr;
+    m_pLastTexture = nullptr;
+
     SDL_DestroyRenderer(m_pWindowRenderer);
-    //SDL_GL_DeleteContext(m_pGLContext);
     SDL_DestroyWindow(m_pWindow);
     m_pWindow = nullptr;
     LOG_DEBUG("CDisplayWindow::~CDisplayWindow() End");
@@ -31,14 +38,40 @@ CDisplayWindow::~CDisplayWindow()
 
 void CDisplayWindow::SetBackgroundImage(string filename)
 {
-    //if (m_sBackgroundImage)
+    if (filename != "")
+    {
+        char result[PATH_MAX];
+        ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+        std::string path;
+        if (count != -1)
+            path = dirname(result);
+        else
+        {
+            LOG_ERROR("CDisplayWindow::SetBackgroundImage() Unable to locate exe directory");
+            return;
+        }
+
+        path.append("/");
+        path.append(filename);
+
+        ifstream f(path.c_str());
+        if (!f.good())
+        {
+            CLogger::getInstance()->error("CDisplayWindow::SetBackgroundImage() Unable to locate background image. Path : %s", path);
+            return;
+        }
+
+        m_sBackgroundImage = filename;
+
+        LoadBackground();
+    }
 }
 
 bool CDisplayWindow::Init()
 {
     LOG_DEBUG("CDisplayWindow::Init() Begin");
 
-    //CLogger::getInstance()->debug("Creating window. Title %s, X %d, Y %d, W %d, H %d, ONTOP %s", m_sTitle, m_iWindow_X, m_iWindow_Y, m_iWindow_W, m__iWindow_H, m_bWindow_Ontop ? "true" : "false");
+    CLogger::getInstance()->debug("Creating window. Title %s, X %d, Y %d, W %d, H %d, ONTOP %s", m_sTitle.c_str(), m_iWindow_X, m_iWindow_Y, m_iWindow_W, m_iWindow_H, m_bWindow_Ontop ? "true" : "false");
     
     // ----- Create window
     m_pWindow = SDL_CreateWindow(m_sTitle.c_str(), m_iWindow_X, m_iWindow_Y, m_iWindow_W, m_iWindow_H, SDL_WINDOW_RESIZABLE | /*SDL_WINDOW_OPENGL |*/ SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS);
@@ -52,27 +85,6 @@ bool CDisplayWindow::Init()
     m_iWindowID = SDL_GetWindowID(m_pWindow);
     CLogger::getInstance()->debug("CDisplayWindow::Init() Window Id : %d", m_iWindowID);
 
-    // ----- SDL OpenGL settings
-    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    //SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    //SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-
-    // ----- SDL OpenGL context
-    //m_pGLContext = SDL_GL_CreateContext(m_pWindow);
-
-    // ----- SDL v-sync
-    //SDL_GL_SetSwapInterval(1);
-
-    // ----- GLEW
-    //glewInit();
-    //glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_TEXTURE_2D);
-    //glEnable(GL_BLEND);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     m_pWindowRenderer = SDL_CreateRenderer(m_pWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (!m_pWindowRenderer)
     {
@@ -81,54 +93,88 @@ bool CDisplayWindow::Init()
         return false;
     }
 
+    int success = SDL_SetWindowHitTest(m_pWindow, CDisplayWindow::DraggingCallback, NULL);
+    if (success == -1)
+    {
+        LOG_ERROR("ApplicatCDisplayWindow::Init() Failed to setup DL_SetWindowHitTest");
+        CLogger::getInstance()->error("CDisplayWindow::Init() DL_SetWindowHitTest Error: %s", SDL_GetError());
+        return false;
+    }
+
     LOG_DEBUG("CDisplayWindow::Init() End");
 
     return true;
 }
 
+SDL_HitTestResult CDisplayWindow::DraggingCallback(SDL_Window* win, const SDL_Point* area, void* data)
+{
+    return SDL_HITTEST_DRAGGABLE;
+}
+
 void CDisplayWindow::Render()
 {
-    SDL_SetRenderDrawColor(m_pWindowRenderer, 0x00, 0x00, 0x00, 0x00);
-    SDL_RenderClear(m_pWindowRenderer);
-    
     if (m_bWindowShown)
     {
-        DrawDefaultBackground();
-    }
+        SDL_SetRenderDrawColor(m_pWindowRenderer, 0x00, 0x00, 0x00, 0x00);
+        SDL_RenderClear(m_pWindowRenderer);
+
+        if (m_pTexture != nullptr/* && (m_pTexture != m_pLastTexture)*/)
+        {
+            if (m_bFlipImageHorizontally || m_bFlipImageVertically)
+            {
+                SDL_RendererFlip flip;
+                if (m_bFlipImageHorizontally && m_bFlipImageVertically)
+                    flip = (SDL_RendererFlip)(SDL_FLIP_HORIZONTAL | SDL_FLIP_VERTICAL);
+                else if (m_bFlipImageHorizontally)
+                    flip = SDL_FLIP_HORIZONTAL;
+                else if (m_bFlipImageVertically)
+                    flip = SDL_FLIP_VERTICAL;
+                else
+                    flip = SDL_FLIP_NONE;
+
+                SDL_RenderCopyEx(m_pWindowRenderer, m_pTexture, NULL, NULL, 0, NULL, flip);
+            }
+            else
+            {
+                //Render texture to screen
+                SDL_RenderCopy(m_pWindowRenderer, m_pTexture, NULL, NULL);
+            }
+
+            //m_pLastTexture = m_pTexture;
+        }
+        else
+            DrawDefaultBackground();
     
-    SDL_RenderPresent(m_pWindowRenderer);
+        SDL_RenderPresent(m_pWindowRenderer);
+    }
 
-    /*
-        do drawing here
-    */
-    //SDL_RWops* rwop = SDL_RWFromMem(nullptr, 1);
-    //int isValid = IMG_isJPG(rwop);
-    //if (!isValid)
-    //{
-    //    isValid = IMG_isPNG(rwop);
-    //}
+}
 
-    //if (isValid)
-    //{
-    //    /*
-    //            SDL_RendererFlip flip;
-    //            if (flipImageHorizontally && flipImageVertically)
-    //                flip = SDL_FLIP_HORIZONTAL | SDL_FLIP_VERTICAL;
-    //            else if (flipImageHorizontally)
-    //                flip = SDL_FLIP_HORIZONTAL;
-    //            else if (flipImageVertically)
-    //                flip = SDL_FLIP_VERTICAL;
+SDL_Texture* CDisplayWindow::LoadTexture(string path)
+{
+    //The final texture
+    SDL_Texture* newTexture = NULL;
 
-    //            SDL_RenderCopyEx(renderer, texture, NULL, NULL, 0, NULL, flip);
-    //     */
+    //Load image at specified path
+    SDL_Surface* loadedSurface = IMG_Load(path.c_str());
+    if (loadedSurface == NULL)
+    {
+        CLogger::getInstance()->error("CDisplayWindow::LoadTexture() Unable to load image %s! SDL_image Error: %s", path, IMG_GetError());
+    }
+    else
+    {
+        //Create texture from surface pixels
+        newTexture = SDL_CreateTextureFromSurface(m_pWindowRenderer, loadedSurface);
+        if (newTexture == NULL)
+        {
+            CLogger::getInstance()->error("CDisplayWindow::LoadTexture() Unable to create texture from %s! SDL Error: %s", path, SDL_GetError());
+        }
 
+        //Get rid of old loaded surface
+        SDL_FreeSurface(loadedSurface);
+    }
 
-    //    SDL_Surface* image = IMG_Load_RW(rwop, 1);
-    //    if (!image)
-    //        std::cerr << "Failed to load image" << std::endl;
-    //}
-
-    //SDL_GL_SwapWindow(m_pWindow);
+    return newTexture;
 }
 
 void CDisplayWindow::DrawDefaultBackground()
@@ -175,6 +221,32 @@ void CDisplayWindow::DrawDefaultBackground()
     {
         SDL_RenderDrawPoint(m_pWindowRenderer, i, m_iWindow_H / 2);
     }
+}
+
+void CDisplayWindow::LoadBackground()
+{
+    if (m_sBackgroundImage != "")
+    {
+        m_pTexture = LoadTexture(m_sBackgroundImage);
+        if (m_pTexture == nullptr)
+        {
+            CLogger::getInstance()->error("CDisplayWindow::LoadBackground() Failed to load background texture image.");
+        }
+    }
+}
+
+void CDisplayWindow::DrawBackground()
+{
+    SDL_Rect rect;
+    rect.x = 0;
+    rect.y = 0;
+    rect.w = m_iWindow_W;
+    rect.h = m_iWindow_H;
+
+    SDL_SetRenderDrawColor(m_pWindowRenderer, 255, 255, 255, 255);
+    SDL_RenderDrawRect(m_pWindowRenderer, &rect);
+
+    SDL_SetRenderDrawColor(m_pWindowRenderer, 0, 0, 0, 255);
 }
 
 bool CDisplayWindow::HandleEvents(SDL_Event& event)
