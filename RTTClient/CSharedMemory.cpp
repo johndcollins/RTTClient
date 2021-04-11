@@ -37,6 +37,16 @@ CSharedMemory::~CSharedMemory()
         m_pNetworkMgr->Disconnect(true);
 }
 
+SDL_Surface* CSharedMemory::DisplayImage(int display)
+{
+    if (m_bNetworked)
+    {
+        return m_pNetworkMgr->DisplayImage(display);
+    }
+    
+    return nullptr;
+}
+
 void CSharedMemory::Update()
 {
     m_iLastFrame = SDL_GetTicks();

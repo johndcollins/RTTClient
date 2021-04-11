@@ -26,10 +26,9 @@ CDisplayWindow::CDisplayWindow(const string& title, int x, int y, int width, int
 CDisplayWindow::~CDisplayWindow()
 {
     LOG_DEBUG("CDisplayWindow::~CDisplayWindow() Begin");
-    if (m_pTexture != nullptr)
-        SDL_DestroyTexture(m_pTexture);
-    m_pTexture = nullptr;
-    m_pLastTexture = nullptr;
+    if (m_pBackgroundTexture != nullptr)
+        SDL_DestroyTexture(m_pBackgroundTexture);
+    m_pBackgroundTexture = nullptr;
 
     if (m_pFont != nullptr)
         TTF_CloseFont(m_pFont);
@@ -103,7 +102,7 @@ bool CDisplayWindow::Init()
     if (m_pFont == nullptr)
     {
         LOG_ERROR("CDisplayWindow::Init() Failed to setup TTF Font");
-        CLogger::getInstance()->error("CDisplayWindow::Render() Failed to load lazy font! SDL_ttf Error: %s", TTF_GetError());
+        CLogger::getInstance()->error("CDisplayWindow::Init() Failed to load lazy font! SDL_ttf Error: %s", TTF_GetError());
     }
 
     LOG_DEBUG("CDisplayWindow::Init() End");
@@ -116,14 +115,31 @@ SDL_HitTestResult CDisplayWindow::DraggingCallback(SDL_Window* win, const SDL_Po
     return SDL_HITTEST_DRAGGABLE;
 }
 
-void CDisplayWindow::Render()
+void CDisplayWindow::Render(SDL_Surface* img)
 {
     if (m_bWindowShown)
     {
         SDL_SetRenderDrawColor(m_pWindowRenderer, 0x00, 0x00, 0x00, 0x00);
         SDL_RenderClear(m_pWindowRenderer);
+        
+        SDL_Texture* renderTexture;
 
-        if (m_pTexture != nullptr/* && (m_pTexture != m_pLastTexture)*/)
+        if (img != nullptr)
+        {
+            SDL_Surface* tempSurface = SDL_ConvertSurfaceFormat(img, SDL_GetWindowPixelFormat(m_pWindow), 0);
+            if (tempSurface != nullptr)
+            {
+                CLogger::getInstance()->error("CDisplayWindow::Render() Failed to convert surface to texture: %s", SDL_GetError());
+                renderTexture = SDL_CreateTextureFromSurface(m_pWindowRenderer, tempSurface);
+                SDL_FreeSurface(tempSurface);
+            }
+            else
+                renderTexture = m_pBackgroundTexture;
+        }
+        else
+            renderTexture = m_pBackgroundTexture;
+
+        if (renderTexture != nullptr)
         {
             if (m_bFlipImageHorizontally || m_bFlipImageVertically)
             {
@@ -137,15 +153,13 @@ void CDisplayWindow::Render()
                 else
                     flip = SDL_FLIP_NONE;
 
-                SDL_RenderCopyEx(m_pWindowRenderer, m_pTexture, NULL, NULL, 0, NULL, flip);
+                SDL_RenderCopyEx(m_pWindowRenderer, renderTexture, NULL, NULL, 0, NULL, flip);
             }
             else
             {
                 //Render texture to screen
-                SDL_RenderCopy(m_pWindowRenderer, m_pTexture, NULL, NULL);
+                SDL_RenderCopy(m_pWindowRenderer, renderTexture, NULL, NULL);
             }
-
-            //m_pLastTexture = m_pTexture;
         }
         else
             DrawDefaultBackground();
@@ -260,8 +274,8 @@ void CDisplayWindow::LoadBackground()
 {
     if (m_sBackgroundImage != "")
     {
-        m_pTexture = LoadTexture(m_sBackgroundImage);
-        if (m_pTexture == nullptr)
+        m_pBackgroundTexture = LoadTexture(m_sBackgroundImage);
+        if (m_pBackgroundTexture == nullptr)
         {
             CLogger::getInstance()->error("CDisplayWindow::LoadBackground() Failed to load background texture image.");
         }

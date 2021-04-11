@@ -15,6 +15,8 @@ using namespace RTTClient::Common;
 
 Application::Application(int argc, char* argv[])
 {
+    LOG_DEBUG("Application::Application() Begin");
+
     CLogger::getInstance()->updateLogLevel(LogLevel::LOG_LEVEL_DEBUG);
 
     ReadSettings();
@@ -22,12 +24,19 @@ Application::Application(int argc, char* argv[])
     m_pSharedMemory = new CSharedMemory(m_iFps, m_bNetworked, m_sIpAddress, m_iPort);
 
     if (!SetupSDL())
+    {
+        LOG_ERROR("Application::Application() Failed to setup SDL");
         return;
+    }
+
+    LOG_DEBUG("Application::Application() End");
 }
 
 
 Application::~Application()
 {
+    LOG_DEBUG("Application::~Application() Begin");
+
     if (m_pHUDWindow != nullptr)
         delete m_pHUDWindow;
     if (m_pPFLWindow != nullptr)
@@ -52,6 +61,8 @@ Application::~Application()
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();
+
+    LOG_DEBUG("Application::~Application() End");
 }
 
 void Application::Loop()
@@ -113,6 +124,8 @@ void Application::Loop()
 
 bool Application::SetupSDL()
 {
+    LOG_DEBUG("Application::SetupSDL() Begin");
+
     SDL_Init(0);
 
     LOG_DEBUG("Application::Application() Testing Video Drivers...");
@@ -210,6 +223,8 @@ bool Application::SetupSDL()
     //SDL_RendererInfo info;
     //SDL_GetRendererInfo(m_pWindowRenderer, &info);
     //CLogger::getInstance()->debug("Application::Application() SDL_RENDER_DRIVER selected : %s", info.name);
+
+    LOG_DEBUG("Application::SetupSDL() End");
 
     return true;
 }
@@ -314,7 +329,7 @@ void Application::RenderDisplays()
                 m_pHUDWindow->ShowWindow();
 
             m_pHUDWindow->MoveWindow(m_iHUD_X, m_iHUD_Y, m_iHUD_W, m_iHUD_H, m_bHUD_ONTOP);
-            m_pHUDWindow->Render();
+            m_pHUDWindow->Render(m_pSharedMemory->DisplayImage(HUD));
         }
     }
 
@@ -339,7 +354,7 @@ void Application::RenderDisplays()
                 m_pPFLWindow->ShowWindow();
 
             m_pPFLWindow->MoveWindow(m_iPFL_X, m_iPFL_Y, m_iPFL_W, m_iPFL_H, m_bPFL_ONTOP);
-            m_pPFLWindow->Render();
+            m_pPFLWindow->Render(m_pSharedMemory->DisplayImage(PFL));
         }
     }
 
@@ -364,7 +379,7 @@ void Application::RenderDisplays()
                 m_pDEDWindow->ShowWindow();
 
             m_pDEDWindow->MoveWindow(m_iDED_X, m_iDED_Y, m_iDED_W, m_iDED_H, m_bDED_ONTOP);
-            m_pDEDWindow->Render();
+            m_pDEDWindow->Render(m_pSharedMemory->DisplayImage(DED));
         }
     }
 
@@ -389,7 +404,7 @@ void Application::RenderDisplays()
                 m_pRWRWindow->ShowWindow();
 
             m_pRWRWindow->MoveWindow(m_iRWR_X, m_iRWR_Y, m_iRWR_W, m_iRWR_H, m_bRWR_ONTOP);
-            m_pRWRWindow->Render();
+            m_pRWRWindow->Render(m_pSharedMemory->DisplayImage(RWR));
         }
     }
 
@@ -414,7 +429,7 @@ void Application::RenderDisplays()
                 m_pMFDLEFTWindow->ShowWindow();
 
             m_pMFDLEFTWindow->MoveWindow(m_iMFDLEFT_X, m_iMFDLEFT_Y, m_iMFDLEFT_W, m_iMFDLEFT_H, m_bMFDLEFT_ONTOP);
-            m_pMFDLEFTWindow->Render();
+            m_pMFDLEFTWindow->Render(m_pSharedMemory->DisplayImage(MFDLEFT));
         }
     }
 
@@ -439,7 +454,7 @@ void Application::RenderDisplays()
                 m_pMFDRIGHTWindow->ShowWindow();
 
             m_pMFDRIGHTWindow->MoveWindow(m_iMFDRIGHT_X, m_iMFDRIGHT_Y, m_iMFDRIGHT_W, m_iMFDRIGHT_H, m_bMFDRIGHT_ONTOP);
-            m_pMFDRIGHTWindow->Render();
+            m_pMFDRIGHTWindow->Render(m_pSharedMemory->DisplayImage(MFDRIGHT));
         }
     }
 
@@ -464,13 +479,15 @@ void Application::RenderDisplays()
                 m_pHMSWindow->ShowWindow();
 
             m_pHMSWindow->MoveWindow(m_iHMS_X, m_iHMS_Y, m_iHMS_W, m_iHMS_H, m_bHMS_ONTOP);
-            m_pHMSWindow->Render();
+            m_pHMSWindow->Render(m_pSharedMemory->DisplayImage(HMS));
         }
     }
 }
 
 void Application::CloseDisplays()
 {
+    LOG_DEBUG("Application::CloseDisplays() Begin");
+
     if (m_bUseHUD)
     {
         if (m_pHUDWindow != nullptr)
@@ -512,10 +529,14 @@ void Application::CloseDisplays()
         if (m_pHMSWindow != nullptr)
             m_pHMSWindow->CloseWindow();
     }
+
+    LOG_DEBUG("Application::CloseDisplays() End");
 }
 
 void Application::ReadSettings()
 {
+    LOG_DEBUG("Application::ReadSettings() Begin");
+
     char result[PATH_MAX];
     ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
     std::string path;
@@ -823,4 +844,6 @@ void Application::ReadSettings()
 
     m_pConfigReader->getValue("HMS_ONTOP", m_bHMS_ONTOP);
     CLogger::getInstance()->debug("   HMS ONTOP : %s", m_bHMS_ONTOP ? "true" : "false");
+
+    LOG_DEBUG("Application::ReadSettings() End");
 }

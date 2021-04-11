@@ -2,7 +2,6 @@
 
 #include <string>
 #include <iostream>
-#include "CTools.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
@@ -17,7 +16,7 @@ public:
 
     void SetBackgroundImage(string filename);
 
-    void Render();
+    void Render(SDL_Surface* img);
     
     bool HandleEvents(SDL_Event& event);
 
@@ -53,10 +52,8 @@ private:
 
     SDL_Window*     m_pWindow = nullptr;
     SDL_Renderer*   m_pWindowRenderer = nullptr;
-    SDL_Texture*    m_pTexture = nullptr;
-    SDL_Texture*    m_pLastTexture = nullptr;
+    SDL_Texture*    m_pBackgroundTexture = nullptr;
     TTF_Font*       m_pFont = nullptr;
-    //SDL_Texture*    m_pFontTexture = nullptr;
 
     SDL_Event       m_windowEvent;
 

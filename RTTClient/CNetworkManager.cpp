@@ -18,6 +18,16 @@ CNetworkManager::~CNetworkManager()
 {
 	LOG_DEBUG("CNetworkManager::~CNetworkManager Begin");
 	Destroy();
+	
+	for (int i = 0; i < DISP_NUM; i++)
+	{
+		if (m_pCurrentImageArray[i] != nullptr)
+		{
+			SDL_FreeSurface(m_pCurrentImageArray[i]);
+			m_pCurrentImageArray[i] = nullptr;
+		}
+	}
+
 	LOG_DEBUG("CNetworkManager::~CNetworkManager End");
 };
 
@@ -25,6 +35,9 @@ CNetworkManager::~CNetworkManager()
 void CNetworkManager::Initialize()
 {
 	LOG_DEBUG("CNetworkManager::Initialize() Begin");
+
+	for (int i = 0; i < DISP_NUM; i++)
+		m_pCurrentImageArray[i] = nullptr;
 
 	// Get RakPeerInterface
 	m_pRakPeer = RakNet::RakPeerInterface::GetInstance();
@@ -40,7 +53,6 @@ void CNetworkManager::Initialize()
 void CNetworkManager::Destroy()
 {
 	LOG_DEBUG("CNetworkManager::Destroy() Begin");
-
 	// Stop RakNet, stops synchronization
 	m_pRakPeer->Shutdown(2000);
 
@@ -153,6 +165,14 @@ void CNetworkManager::Disconnect(bool shutdown)
 	}
 
 	LOG_DEBUG("CNetworkManager::Disconnect() End");
+}
+
+SDL_Surface* CNetworkManager::DisplayImage(int display)
+{
+	if (display < DISP_NUM)
+		return m_pCurrentImageArray[display];
+
+	return nullptr;
 }
 
 void CNetworkManager::SendHandshake()
@@ -335,26 +355,28 @@ void CNetworkManager::Pulse()
 			{
 				LOG_DEBUG("CNetworkManager::Pulse() MSG_HANDSHAKE Begin");
 
-				RakNet::BitStream bitstream(g_Packet->data + 1, g_Packet->length - 1, false);
-				unsigned char value;
-				bitstream.Read(value);
-				bitstream.Read(value);
-				m_iFps = value;
-				unsigned char dataValues[DATA_NUM];
-				bitstream.ReadBits(dataValues, (unsigned int)DATA_NUM, false);
+				m_bValidHandshake = false;
+				HANDSHAKE handshake;
+				memcpy(&handshake, g_Packet->data + sizeof(unsigned char), sizeof(struct HANDSHAKE));
+
+				if (handshake.rttVersion != RTT_VERSION)
+				{
+					m_bValidHandshake = false;
+					CLogger::getInstance()->error("CNetworkManager::Pulse() Version mismatch Client : %d vs Server : %d", RTT_VERSION, handshake.rttVersion);
+					m_pRakPeer->DeallocatePacket(g_Packet);
+					CNetworkManager::Disconnect();
+					return;				
+				}
+
+				m_iFps = handshake.fps;
+
 				for (int i = 0; i < DATA_NUM; i++)
-					if (dataValues[i] > 0)
+					if (handshake.useData[i] > 0)
 						m_bValidHandshake = true;
 
-				if (!m_bValidHandshake)
-				{
-					unsigned char dispValues[DISP_NUM];
-					bitstream.ReadBits(dispValues, (unsigned int)DISP_NUM, false);
-
-					for (int i = 0; i < DISP_NUM; i++)
-						if (dispValues[i] > 0)
-							m_bValidHandshake = true;
-				}
+				for (int i = 0; i < DISP_NUM; i++)
+					if (handshake.useDisp[i] > 0)
+						m_bValidHandshake = true;
 
 				if (!m_bValidHandshake)
 				{
@@ -363,19 +385,45 @@ void CNetworkManager::Pulse()
 					CNetworkManager::Disconnect();
 					return;
 				}
-				else
-				{
-					LOG_DEBUG("CNetworkManager::Pulse() RTT Handshake completed");
-					g_ConnectionState = CONSTATE_COND;
-				}
+
+				LOG_DEBUG("CNetworkManager::Pulse() RTT Handshake completed");
+				g_ConnectionState = CONSTATE_COND;
+
 				LOG_DEBUG("CNetworkManager::Pulse() MSG_HANDSHAKE End");
 				break;
 			}
 			case MSG_IMAGE:
 			{
 				LOG_DEBUG("CNetworkManager::Pulse() MSG_IMAGE Begin");
-				RakNet::BitStream bitstream(g_Packet->data + 1, g_Packet->length - 1, false);
 
+				//RakNet::BitStream bitstream(g_Packet->data + 1, sizeof(RTT_HEADER), false);
+				RTT_HEADER header;
+				memcpy(&header, g_Packet->data + sizeof(unsigned char), sizeof(struct RTT_HEADER));
+				CLogger::getInstance()->debug("CNetworkManager::Pulse() MSG_IMAGE RTT Header - Mode : %d Disp : %d Width : %d Height : %d Size : %d Data Length : %d Header Length : %d",
+					header.mode, header.disp, header.width, header.height, header.size, g_Packet->length, sizeof(unsigned char) + sizeof(RTT_HEADER));
+
+				//RakNet::BitStream bitstream(g_Packet->data + sizeof(unsigned char) + sizeof(RTT_HEADER), header.size, false);
+				unsigned char imageArray[header.size];
+				memcpy(&imageArray[0], g_Packet->data + sizeof(unsigned char) + sizeof(RTT_HEADER), header.size);
+
+				//SDL_RWops* rw = SDL_RWFromMem(imageArray, sizeof(imageArray));
+				SDL_RWops* rw = SDL_RWFromConstMem(imageArray, sizeof(imageArray));
+				if (rw != NULL) {
+					LOG_DEBUG("CNetworkManager::Pulse() MSG_IMAGE Creating image surface");
+
+					SDL_Surface* img = IMG_Load_RW(rw, 1);
+
+					if (m_pCurrentImageArray[header.disp] != nullptr)
+					{
+						LOG_DEBUG("CNetworkManager::Pulse() MSG_IMAGE Freeing previous image");
+						SDL_FreeSurface(m_pCurrentImageArray[header.disp]);
+						m_pCurrentImageArray[header.disp] = nullptr;
+					}
+
+					LOG_DEBUG("CNetworkManager::Pulse() MSG_IMAGE Storing image surface");
+					m_pCurrentImageArray[header.disp] = img;
+				}
+				
 				LOG_DEBUG("CNetworkManager::Pulse() MSG_IMAGE End");
 				break;
 			}

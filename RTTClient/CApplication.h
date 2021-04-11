@@ -12,6 +12,7 @@
 // opengl
 #include <GL/glew.h>
 
+#include "rtt.h"
 #include "CSharedMemory.h"
 #include "CConfigReader.h"
 #include "CDisplayWindow.h"

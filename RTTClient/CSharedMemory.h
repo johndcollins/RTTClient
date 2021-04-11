@@ -14,6 +14,7 @@ public:
 	CSharedMemory(int defaultFps, bool networked, string ipAddress, int port);
 	~CSharedMemory();
 
+	SDL_Surface* DisplayImage(int display);
 	void Update();
 
 	int GetFps();
