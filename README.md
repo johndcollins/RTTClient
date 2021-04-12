@@ -69,6 +69,6 @@ Type=Application
 Name=RTTClient
 Exec=/home/pi/RTTClient/start.sh
 ```
-If you put the RTTClient executable in a different folder, you will need to modify this aand the startup.sh script.
+If you put the RTTClient executable in a different folder, you will need to modify this and the startup.sh script.
 
-you might have to make both the RTTClient and the start.sh executable using the chmod +x command
+You might have to make both the RTTClient and the start.sh executable using the chmod +x command
