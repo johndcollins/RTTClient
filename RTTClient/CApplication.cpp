@@ -6,6 +6,7 @@
 #include <unistd.h>         // readlink
 #include <linux/limits.h>   // PATH_MAX
 #include <vector>
+#include <chrono>
 
 using namespace std;
 using namespace RTTClient::Common;
@@ -69,29 +70,29 @@ void Application::Loop()
 {
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 
-    bool running = true;
-    while (running)
-    {
-        while (SDL_PollEvent(&m_windowEvent) > 0)
-        {
-            //User requests quit
-            if (m_windowEvent.type == SDL_WINDOWEVENT && (m_windowEvent.type == SDL_QUIT || m_windowEvent.window.event == SDL_WINDOWEVENT_CLOSE))
-            {
-                LOG_DEBUG("Application::Loop() SDL_QUIT");
-                CloseDisplays();
-                running = false;
-            } 
-            else
-            { 
-                UpdateDisplaysEvent(m_windowEvent);
-            }
-        }
+    bool quit_game = false;
 
-        if (running)
-        {
-            Update();
-            Render();
-        }
+    while (!quit_game)
+    {
+        unsigned int frameStart = SDL_GetTicks();
+
+        int fps = 30;
+
+        int serverFps = m_pSharedMemory->GetFps();
+        if (serverFps != 0)
+            fps = serverFps;
+
+        int frameDelay = fps / 1000;
+
+        quit_game = ProcessInput();
+
+        Update();
+        Render();
+
+        int frameTime = SDL_GetTicks() - frameStart;
+
+        if (frameDelay > frameTime)
+            SDL_Delay(frameDelay - frameTime);
     }
 }
 
@@ -166,32 +167,34 @@ bool Application::SetupSDL()
     return true;
 }
 
-void Application::Update()
+bool Application::ProcessInput()
 {
-    m_iLastFrame = SDL_GetTicks();
-    if (m_iLastFrame >= (m_iLastFrame + 1000))
+    while (SDL_PollEvent(&m_windowEvent) > 0)
     {
-        m_iLastTime = m_iLastFrame;
-        m_iFpsActual = m_iFrameCount;
-        m_iFrameCount = 0;
+        //User requests quit
+        if (m_windowEvent.type == SDL_WINDOWEVENT && (m_windowEvent.type == SDL_QUIT || m_windowEvent.window.event == SDL_WINDOWEVENT_CLOSE))
+        {
+            LOG_DEBUG("Application::Loop() SDL_QUIT");
+            CloseDisplays();
+            return true;
+        }
+        else
+        {
+            UpdateDisplaysEvent(m_windowEvent);
+        }
     }
 
+    return false;
+}
 
-    int serverFps = m_pSharedMemory->GetFps();
-    if (serverFps != 0)
-        m_iFps = serverFps;
-
+void Application::Update()
+{
     m_pSharedMemory->Update();
 }
 
 void Application::Render()
 {
-    m_iFrameCount++;
-    m_iTimerFPS = SDL_GetTicks() - m_iLastFrame;
-    if (m_iTimerFPS < (1000 / m_iFps))
-    {
-        RenderDisplays();
-    }
+    RenderDisplays();
 }
 
 void Application::UpdateDisplaysEvent(SDL_Event &event)

@@ -7,8 +7,6 @@
 #include "CDisplayWindow.h"
 #include "SDL2_Gfx/SDL2_gfxPrimitives.h"
 
-#include <GL/glew.h>
-
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 

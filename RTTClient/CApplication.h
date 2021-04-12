@@ -32,6 +32,7 @@ public:
     void Loop();
 
 private:
+    bool ProcessInput();
     void Update();
     void Render();
 
@@ -47,6 +48,8 @@ private:
 
     CSharedMemory*  m_pSharedMemory = nullptr;
     CConfigReader*  m_pConfigReader = nullptr;
+
+    int             m_iFps = 30;
 
     bool            m_bNetworked = false;
     string          m_sIpAddress = "";
@@ -151,12 +154,4 @@ private:
     bool            m_bDataBMS = false;
     bool            m_bDataOSB = false;
     bool            m_bDataIVIBE = false;
-
-    int             m_iFrameRate = 0;
-    int             m_iLastTime = 0;
-    int             m_iFrameCount = 0;
-    int             m_iTimerFPS = 0;
-    int             m_iLastFrame = 0;
-    int             m_iFpsActual = 0;
-    int             m_iFps = 0;
 };

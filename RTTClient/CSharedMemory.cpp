@@ -56,32 +56,19 @@ std::vector<unsigned char> CSharedMemory::DisplayImage(int display)
 
 void CSharedMemory::Update()
 {
-    m_iLastFrame = SDL_GetTicks();
-    if (m_iLastFrame >= (m_iLastFrame + 1000))
+    if (m_bNetworked)
     {
-        m_iLastTime = m_iLastFrame;
-        m_iFpsActual = m_iFrameCount;
-        m_iFrameCount = 0;
+        if (m_pNetworkMgr->g_iConnectionState == CONSTATE_DISC || m_pNetworkMgr->g_iConnectionState == CONSTATE_FAIL)
+            m_pNetworkMgr->Connect(m_sIpAddress.c_str(), m_iPort);
+
+        m_pNetworkMgr->Pulse();
+        int serverFps = m_pNetworkMgr->GetFPS();
+        if (serverFps != 0)
+            m_iFps = serverFps;
     }
-
-    m_iFrameCount++;
-    m_iTimerFPS = SDL_GetTicks() - m_iLastFrame;
-    if (m_iTimerFPS < (1000 / m_iFps))
+    else
     {
-        if (m_bNetworked)
-        {
-            if (m_pNetworkMgr->g_iConnectionState == CONSTATE_DISC || m_pNetworkMgr->g_iConnectionState == CONSTATE_FAIL)
-                m_pNetworkMgr->Connect(m_sIpAddress.c_str(), m_iPort);
-
-            m_pNetworkMgr->Pulse();
-            int serverFps = m_pNetworkMgr->GetFPS();
-            if (serverFps != 0)
-                m_iFps = serverFps;
-        }
-        else
-        {
-            // Read Shared memory if we are on a windows machine...not happening here
-        }
+        // Read Shared memory if we are on a windows machine...not happening here
     }
 }
 
