@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) John collins. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
 #include <libgen.h>         // dirname
 #include <unistd.h>         // readlink
 #include <linux/limits.h>   // PATH_MAX

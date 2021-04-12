@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) John collins. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
 #include "CConfigReader.h"
 
 #include <fstream>
@@ -22,11 +27,6 @@ CConfigReader::~CConfigReader()
 
 CConfigReader* CConfigReader::getInstance()
 {
-    // No need to use double re-check lock mechanism here
-    // because this getInstance() will call at the time of
-    // initialization only and mostly, at the time of
-    // initialization, there will be only one thread.
-
     if (NULL_PTR == m_pInstance)
     {
         m_pInstance = new CConfigReader;
