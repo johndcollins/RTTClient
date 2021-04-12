@@ -252,7 +252,7 @@ void Application::RenderDisplays()
             m_pHUDWindow->SetBackgroundImage(m_sHUDBackgroundImage);
 
             m_pHUDWindow->SetFlipImageVertically(m_bHUDFlippedVertically);
-            m_pHUDWindow->SetFlipImageHorizontally(m_bHUDFlippedHorizontically);
+            m_pHUDWindow->SetFlipImageHorizontally(m_bHUDFlippedHorizontally);
             m_pHUDWindow->SetUseDefaultWidth(m_bHUDDefaultSize_W);
             m_pHUDWindow->SetUseDefaultHeight(m_bHUDDefaultSize_H);
 
@@ -277,7 +277,7 @@ void Application::RenderDisplays()
             m_pPFLWindow->SetBackgroundImage(m_sPFLBackgroundImage);
 
             m_pPFLWindow->SetFlipImageVertically(m_bPFLFlippedVertically);
-            m_pPFLWindow->SetFlipImageHorizontally(m_bPFLFlippedHorizontically);
+            m_pPFLWindow->SetFlipImageHorizontally(m_bPFLFlippedHorizontally);
             m_pPFLWindow->SetUseDefaultWidth(m_bPFLDefaultSize_W);
             m_pPFLWindow->SetUseDefaultHeight(m_bPFLDefaultSize_H);
 
@@ -302,7 +302,7 @@ void Application::RenderDisplays()
             m_pDEDWindow->SetBackgroundImage(m_sDEDBackgroundImage);
 
             m_pDEDWindow->SetFlipImageVertically(m_bDEDFlippedVertically);
-            m_pDEDWindow->SetFlipImageHorizontally(m_bDEDFlippedHorizontically);
+            m_pDEDWindow->SetFlipImageHorizontally(m_bDEDFlippedHorizontally);
             m_pDEDWindow->SetUseDefaultWidth(m_bDEDDefaultSize_W);
             m_pDEDWindow->SetUseDefaultHeight(m_bDEDDefaultSize_H);
 
@@ -327,7 +327,7 @@ void Application::RenderDisplays()
             m_pRWRWindow->SetBackgroundImage(m_sRWRBackgroundImage);
 
             m_pRWRWindow->SetFlipImageVertically(m_bRWRFlippedVertically);
-            m_pRWRWindow->SetFlipImageHorizontally(m_bRWRFlippedHorizontically);
+            m_pRWRWindow->SetFlipImageHorizontally(m_bRWRFlippedHorizontally);
             m_pRWRWindow->SetUseDefaultWidth(m_bRWRDefaultSize_W);
             m_pRWRWindow->SetUseDefaultHeight(m_bRWRDefaultSize_H);
 
@@ -352,7 +352,7 @@ void Application::RenderDisplays()
             m_pMFDLEFTWindow->SetBackgroundImage(m_sMFDLEFTBackgroundImage);
 
             m_pMFDLEFTWindow->SetFlipImageVertically(m_bMFDLEFTFlippedVertically);
-            m_pMFDLEFTWindow->SetFlipImageHorizontally(m_bMFDLEFTFlippedHorizontically);
+            m_pMFDLEFTWindow->SetFlipImageHorizontally(m_bMFDLEFTFlippedHorizontally);
             m_pMFDLEFTWindow->SetUseDefaultWidth(m_bMFDLEFTDefaultSize_W);
             m_pMFDLEFTWindow->SetUseDefaultHeight(m_bMFDLEFTDefaultSize_H);
 
@@ -377,7 +377,7 @@ void Application::RenderDisplays()
             m_pMFDRIGHTWindow->SetBackgroundImage(m_sMFDRIGHTBackgroundImage);
 
             m_pMFDRIGHTWindow->SetFlipImageVertically(m_bMFDRIGHTFlippedVertically);
-            m_pMFDRIGHTWindow->SetFlipImageHorizontally(m_bMFDRIGHTFlippedHorizontically);
+            m_pMFDRIGHTWindow->SetFlipImageHorizontally(m_bMFDRIGHTFlippedHorizontally);
             m_pMFDRIGHTWindow->SetUseDefaultWidth(m_bMFDRIGHTDefaultSize_W);
             m_pMFDRIGHTWindow->SetUseDefaultHeight(m_bMFDRIGHTDefaultSize_H);
 
@@ -402,7 +402,7 @@ void Application::RenderDisplays()
             m_pHMSWindow->SetBackgroundImage(m_sHMSBackgroundImage);
 
             m_pHMSWindow->SetFlipImageVertically(m_bHMSFlippedVertically);
-            m_pHMSWindow->SetFlipImageHorizontally(m_bHMSFlippedHorizontically);
+            m_pHMSWindow->SetFlipImageHorizontally(m_bHMSFlippedHorizontally);
             m_pHMSWindow->SetUseDefaultWidth(m_bHMSDefaultSize_W);
             m_pHMSWindow->SetUseDefaultHeight(m_bHMSDefaultSize_H);
 
@@ -531,8 +531,8 @@ void Application::ReadSettings()
     m_pConfigReader->getValue("HUD_FLIPPED_VERTICALLY", m_bHUDFlippedVertically);
     CLogger::getInstance()->debug("   HUD Flipped Vertically : %s", m_bHUDFlippedVertically ? "true" : "false");
 
-    m_pConfigReader->getValue("HUD_FLIPPED_HORIZONTICALLY", m_bHUDFlippedHorizontically);
-    CLogger::getInstance()->debug("   HUD Flipped Horizontically : %s", m_bHUDFlippedHorizontically ? "true" : "false");
+    m_pConfigReader->getValue("HUD_FLIPPED_HORIZONTALLY", m_bHUDFlippedHorizontally);
+    CLogger::getInstance()->debug("   HUD Flipped Horizontally : %s", m_bHUDFlippedHorizontally ? "true" : "false");
 
     m_pConfigReader->getValue("HUD_X", m_iHUD_X);
     CLogger::getInstance()->debug("   HUD X : %d", m_iHUD_X);
@@ -562,8 +562,8 @@ void Application::ReadSettings()
     m_pConfigReader->getValue("PFL_FLIPPED_VERTICALLY", m_bPFLFlippedVertically);
     CLogger::getInstance()->debug("   PFL Flipped Vertically : %s", m_bPFLFlippedVertically ? "true" : "false");
 
-    m_pConfigReader->getValue("PFL_FLIPPED_HORIZONTICALLY", m_bPFLFlippedHorizontically);
-    CLogger::getInstance()->debug("   PFL Flipped Horizontically : %s", m_bPFLFlippedHorizontically ? "true" : "false");
+    m_pConfigReader->getValue("PFL_FLIPPED_HORIZONTALLY", m_bPFLFlippedHorizontally);
+    CLogger::getInstance()->debug("   PFL Flipped Horizontally : %s", m_bPFLFlippedHorizontally ? "true" : "false");
 
     m_pConfigReader->getValue("PFL_BACKGROUND_IMAGE", m_sPFLBackgroundImage);
     CLogger::getInstance()->debug("   PFL_BACKGROUND_IMAGE : %s", m_sPFLBackgroundImage.c_str());
@@ -605,8 +605,8 @@ void Application::ReadSettings()
     m_pConfigReader->getValue("DED_FLIPPED_VERTICALLY", m_bDEDFlippedVertically);
     CLogger::getInstance()->debug("   DED Flipped Vertically : %s", m_bDEDFlippedVertically ? "true" : "false");
 
-    m_pConfigReader->getValue("DED_FLIPPED_HORIZONTICALLY", m_bDEDFlippedHorizontically);
-    CLogger::getInstance()->debug("   DED Flipped Horizontically : %s", m_bDEDFlippedHorizontically ? "true" : "false");
+    m_pConfigReader->getValue("DED_FLIPPED_HORIZONTALLY", m_bDEDFlippedHorizontally);
+    CLogger::getInstance()->debug("   DED Flipped Horizontally : %s", m_bDEDFlippedHorizontally ? "true" : "false");
 
     m_pConfigReader->getValue("DED_X", m_iDED_X);
     CLogger::getInstance()->debug("   DED X : %d", m_iDED_X);
@@ -642,8 +642,8 @@ void Application::ReadSettings()
     m_pConfigReader->getValue("RWR_FLIPPED_VERTICALLY", m_bRWRFlippedVertically);
     CLogger::getInstance()->debug("   RWR Flipped Vertically : %s", m_bRWRFlippedVertically ? "true" : "false");
 
-    m_pConfigReader->getValue("RWR_FLIPPED_HORIZONTICALLY", m_bRWRFlippedHorizontically);
-    CLogger::getInstance()->debug("   RWR Flipped Horizontically : %s", m_bRWRFlippedHorizontically ? "true" : "false");
+    m_pConfigReader->getValue("RWR_FLIPPED_HORIZONTALLY", m_bRWRFlippedHorizontally);
+    CLogger::getInstance()->debug("   RWR Flipped Horizontally : %s", m_bRWRFlippedHorizontally ? "true" : "false");
 
     m_pConfigReader->getValue("RWR_X", m_iRWR_X);
     CLogger::getInstance()->debug("   RWR X : %d", m_iRWR_X);
@@ -679,8 +679,8 @@ void Application::ReadSettings()
     m_pConfigReader->getValue("MFDLEFT_FLIPPED_VERTICALLY", m_bMFDLEFTFlippedVertically);
     CLogger::getInstance()->debug("   MFDLEFT Flipped Vertically : %s", m_bMFDLEFTFlippedVertically ? "true" : "false");
 
-    m_pConfigReader->getValue("MFDLEFT_FLIPPED_HORIZONTICALLY", m_bMFDLEFTFlippedHorizontically);
-    CLogger::getInstance()->debug("   MFDLEFT Flipped Horizontically : %s", m_bMFDLEFTFlippedHorizontically ? "true" : "false");
+    m_pConfigReader->getValue("MFDLEFT_FLIPPED_HORIZONTALLY", m_bMFDLEFTFlippedHorizontally);
+    CLogger::getInstance()->debug("   MFDLEFT Flipped Horizontally : %s", m_bMFDLEFTFlippedHorizontally ? "true" : "false");
 
     m_pConfigReader->getValue("MFDLEFT_X", m_iMFDLEFT_X);
     CLogger::getInstance()->debug("   LEFT MFD X : %d", m_iMFDLEFT_X);
@@ -716,8 +716,8 @@ void Application::ReadSettings()
     m_pConfigReader->getValue("MFDRIGHT_FLIPPED_VERTICALLY", m_bMFDRIGHTFlippedVertically);
     CLogger::getInstance()->debug("   MFDRIGHT Flipped Vertically : %s", m_bMFDRIGHTFlippedVertically ? "true" : "false");
 
-    m_pConfigReader->getValue("MFDRIGHT_FLIPPED_HORIZONTICALLY", m_bMFDRIGHTFlippedHorizontically);
-    CLogger::getInstance()->debug("   MFDRIGHT Flipped Horizontically : %s", m_bMFDRIGHTFlippedHorizontically ? "true" : "false");
+    m_pConfigReader->getValue("MFDRIGHT_FLIPPED_HORIZONTALLY", m_bMFDRIGHTFlippedHorizontally);
+    CLogger::getInstance()->debug("   MFDRIGHT Flipped Horizontally : %s", m_bMFDRIGHTFlippedHorizontally ? "true" : "false");
 
     m_pConfigReader->getValue("MFDRIGHT_X", m_iMFDRIGHT_X);
     CLogger::getInstance()->debug("   RIGHT MFD X : %d", m_iMFDRIGHT_X);
@@ -753,8 +753,8 @@ void Application::ReadSettings()
     m_pConfigReader->getValue("HMS_FLIPPED_VERTICALLY", m_bHMSFlippedVertically);
     CLogger::getInstance()->debug("   HMS Flipped Vertically : %s", m_bHMSFlippedVertically ? "true" : "false");
 
-    m_pConfigReader->getValue("HMS_FLIPPED_HORIZONTICALLY", m_bHMSFlippedHorizontically);
-    CLogger::getInstance()->debug("   HMS Flipped Horizontically : %s", m_bHMSFlippedHorizontically ? "true" : "false");
+    m_pConfigReader->getValue("HMS_FLIPPED_HORIZONTALLY", m_bHMSFlippedHorizontally);
+    CLogger::getInstance()->debug("   HMS Flipped Horizontally : %s", m_bHMSFlippedHorizontally ? "true" : "false");
 
     m_pConfigReader->getValue("HMS_X", m_iHMS_X);
     CLogger::getInstance()->debug("   HMS X : %d", m_iHMS_X);

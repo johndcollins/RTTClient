@@ -62,7 +62,7 @@ private:
     CDisplayWindow* m_pHUDWindow = nullptr;
     bool            m_bUseHUD = false;
     bool            m_bHUDFlippedVertically = false;
-    bool            m_bHUDFlippedHorizontically = false;
+    bool            m_bHUDFlippedHorizontally = false;
     int             m_iHUD_X = 0;
     int             m_iHUD_Y = 0;
     int             m_iHUD_W = 0;
@@ -75,7 +75,7 @@ private:
     CDisplayWindow* m_pPFLWindow = nullptr;
     bool            m_bUsePFL = false;
     bool            m_bPFLFlippedVertically = false;
-    bool            m_bPFLFlippedHorizontically = false;
+    bool            m_bPFLFlippedHorizontally = false;
     int             m_iPFL_X = 0;
     int             m_iPFL_Y = 0;
     int             m_iPFL_W = 0;
@@ -88,7 +88,7 @@ private:
     CDisplayWindow* m_pDEDWindow = nullptr;
     bool            m_bUseDED = false;
     bool            m_bDEDFlippedVertically = false;
-    bool            m_bDEDFlippedHorizontically = false;
+    bool            m_bDEDFlippedHorizontally = false;
     int             m_iDED_X = 0;
     int             m_iDED_Y = 0;
     int             m_iDED_W = 0;
@@ -102,7 +102,7 @@ private:
     bool            m_bUseRWR = false;
     bool            m_dRWRGrid = 0;
     bool            m_bRWRFlippedVertically = false;
-    bool            m_bRWRFlippedHorizontically = false;
+    bool            m_bRWRFlippedHorizontally = false;
     int             m_iRWR_X = 0;
     int             m_iRWR_Y = 0;
     int             m_iRWR_W = 0;
@@ -115,7 +115,7 @@ private:
     CDisplayWindow* m_pMFDLEFTWindow = nullptr;
     bool            m_bUseMFDLEFT = false;
     bool            m_bMFDLEFTFlippedVertically = false;
-    bool            m_bMFDLEFTFlippedHorizontically = false;
+    bool            m_bMFDLEFTFlippedHorizontally = false;
     int             m_iMFDLEFT_X = 0;
     int             m_iMFDLEFT_Y = 0;
     int             m_iMFDLEFT_W = 0;
@@ -128,7 +128,7 @@ private:
     CDisplayWindow* m_pMFDRIGHTWindow = nullptr;
     bool            m_bUseMFDRIGHT = false;
     bool            m_bMFDRIGHTFlippedVertically = false;
-    bool            m_bMFDRIGHTFlippedHorizontically = false;
+    bool            m_bMFDRIGHTFlippedHorizontally = false;
     int             m_iMFDRIGHT_X = 0;
     int             m_iMFDRIGHT_Y = 0;
     int             m_iMFDRIGHT_W = 0;
@@ -141,7 +141,7 @@ private:
     CDisplayWindow* m_pHMSWindow = nullptr;
     bool            m_bUseHMS = false;
     bool            m_bHMSFlippedVertically = false;
-    bool            m_bHMSFlippedHorizontically = false;
+    bool            m_bHMSFlippedHorizontally = false;
     int             m_iHMS_X = 0;
     int             m_iHMS_Y = 0;
     int             m_iHMS_W = 0;
