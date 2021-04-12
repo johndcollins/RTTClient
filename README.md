@@ -29,4 +29,45 @@ Possible future enhancements:
   * [ ] `Cross platform to this can be used on Windows or Mac`
   
  
-  
+# Setup
+You will need to build this project
+One way is to follow these steps (can be done in many different ways)
+
+Install the following dependencies:
+```c
+sudo apt-get install -y g++ gdb make ninja-build rsync zip
+sudo apt-get install -y build-essential gdb
+sudo apt-get install -y cmake
+sudo apt-get install -y libsdl2-dev
+sudo apt install -y libsdl2-image-dev
+sudo apt install -y libsdl2-ttf-dev
+sudo apt-get install -y libglew-dev
+```
+
+Clone this project in a folder like ~/projects/rttclient on your Rpi 4
+Go to the folder and run:
+```c
+cmake .
+cmake --build .
+```
+
+This will create a RTTClient file in the RTTClient folder.
+Copy the following files to a new folder called ~/RTTClient
+```c
+RTTClient
+RTTClient.ini
+font.ttf
+start.sh
+```
+
+To autostart the RTTClient when you boot the Rpi create this file:
+```c
+nano .config/autostart/rtt.desktop
+```
+and enter this in the file and save:
+```c
+[Desktop Entry]
+Type=Application
+Name=RTTClient
+Exec=/home/pi/RTTClient/start.sh
+```
