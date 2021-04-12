@@ -37,14 +37,14 @@ CSharedMemory::~CSharedMemory()
         m_pNetworkMgr->Disconnect(true);
 }
 
-SDL_Surface* CSharedMemory::DisplayImage(int display)
+std::vector<unsigned char> CSharedMemory::DisplayImage(int display)
 {
     if (m_bNetworked)
     {
         return m_pNetworkMgr->DisplayImage(display);
     }
     
-    return nullptr;
+    return std::vector<unsigned char>(0);
 }
 
 void CSharedMemory::Update()

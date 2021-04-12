@@ -43,19 +43,10 @@ private:
 
     void ReadSettings();
 
-    //SDL_Window* m_pWindow = nullptr;
-    //int m_iWindowID = 0;
-
-//    SDL_Surface*  m_pWindowSurface;
-    //SDL_Renderer*   m_pWindowRenderer = nullptr;
     SDL_Event       m_windowEvent;
 
     CSharedMemory*  m_pSharedMemory = nullptr;
     CConfigReader*  m_pConfigReader = nullptr;
-
-    bool            m_bShown = false;
-    int             m_iWindowWidth = 800;
-    int             m_iWindowHeight = 600;
 
     bool            m_bNetworked = false;
     string          m_sIpAddress = "";

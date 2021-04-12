@@ -2,8 +2,11 @@
 #include "CLogger.h"
 
 #include <iostream>
+#include <ostream>
+#include <iterator>
 #include <chrono>
 #include <thread>
+#include <cstring>
 
 using namespace RTTClient::Common;
 
@@ -167,12 +170,12 @@ void CNetworkManager::Disconnect(bool shutdown)
 	LOG_DEBUG("CNetworkManager::Disconnect() End");
 }
 
-SDL_Surface* CNetworkManager::DisplayImage(int display)
+std::vector<unsigned char> CNetworkManager::DisplayImage(int display)
 {
 	if (display < DISP_NUM)
-		return m_pCurrentImageArray[display];
+		return m_pCurrentImages[display];
 
-	return nullptr;
+	return std::vector<unsigned char>(0);
 }
 
 void CNetworkManager::SendHandshake()
@@ -396,34 +399,15 @@ void CNetworkManager::Pulse()
 			{
 				LOG_DEBUG("CNetworkManager::Pulse() MSG_IMAGE Begin");
 
-				//RakNet::BitStream bitstream(g_Packet->data + 1, sizeof(RTT_HEADER), false);
 				RTT_HEADER header;
 				memcpy(&header, g_Packet->data + sizeof(unsigned char), sizeof(struct RTT_HEADER));
-				CLogger::getInstance()->debug("CNetworkManager::Pulse() MSG_IMAGE RTT Header - Mode : %d Disp : %d Width : %d Height : %d Size : %d Data Length : %d Header Length : %d",
-					header.mode, header.disp, header.width, header.height, header.size, g_Packet->length, sizeof(unsigned char) + sizeof(RTT_HEADER));
 
-				//RakNet::BitStream bitstream(g_Packet->data + sizeof(unsigned char) + sizeof(RTT_HEADER), header.size, false);
 				unsigned char imageArray[header.size];
-				memcpy(&imageArray[0], g_Packet->data + sizeof(unsigned char) + sizeof(RTT_HEADER), header.size);
+				std::memcpy(&imageArray[0], g_Packet->data + sizeof(unsigned char) + sizeof(RTT_HEADER), header.size);
+				std::vector<unsigned char> v(imageArray, imageArray + header.size);
+				m_pCurrentImages[header.disp] = v;
+				m_pCurrentImages[header.disp].shrink_to_fit();
 
-				//SDL_RWops* rw = SDL_RWFromMem(imageArray, sizeof(imageArray));
-				SDL_RWops* rw = SDL_RWFromConstMem(imageArray, sizeof(imageArray));
-				if (rw != NULL) {
-					LOG_DEBUG("CNetworkManager::Pulse() MSG_IMAGE Creating image surface");
-
-					SDL_Surface* img = IMG_Load_RW(rw, 1);
-
-					if (m_pCurrentImageArray[header.disp] != nullptr)
-					{
-						LOG_DEBUG("CNetworkManager::Pulse() MSG_IMAGE Freeing previous image");
-						SDL_FreeSurface(m_pCurrentImageArray[header.disp]);
-						m_pCurrentImageArray[header.disp] = nullptr;
-					}
-
-					LOG_DEBUG("CNetworkManager::Pulse() MSG_IMAGE Storing image surface");
-					m_pCurrentImageArray[header.disp] = img;
-				}
-				
 				LOG_DEBUG("CNetworkManager::Pulse() MSG_IMAGE End");
 				break;
 			}

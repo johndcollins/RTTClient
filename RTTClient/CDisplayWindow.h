@@ -16,7 +16,7 @@ public:
 
     void SetBackgroundImage(string filename);
 
-    void Render(SDL_Surface* img);
+    void Render(std::vector<unsigned char> image);
     
     bool HandleEvents(SDL_Event& event);
 
@@ -35,7 +35,7 @@ public:
 
     inline void SetShowPositionInfo(bool set) { m_bShowPositionInfo = set; }
 
-    void SetWindowsMovable(bool set);
+    void SetWindowMovable(bool set);
 
 private:
     bool Init();
@@ -46,13 +46,11 @@ private:
     void ShowPositionText();
 
     void DrawDefaultBackground();
-    void LoadBackground();
 
     static SDL_HitTestResult DraggingCallback(SDL_Window* win, const SDL_Point* area, void* data);
 
     SDL_Window*     m_pWindow = nullptr;
     SDL_Renderer*   m_pWindowRenderer = nullptr;
-    SDL_Texture*    m_pBackgroundTexture = nullptr;
     TTF_Font*       m_pFont = nullptr;
 
     SDL_Event       m_windowEvent;

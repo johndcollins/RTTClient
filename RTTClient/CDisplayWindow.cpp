@@ -1,6 +1,8 @@
 #include <libgen.h>         // dirname
 #include <unistd.h>         // readlink
 #include <linux/limits.h>   // PATH_MAX
+#include <vector>
+#include <iterator>
 
 #include "CDisplayWindow.h"
 #include "SDL2_Gfx/SDL2_gfxPrimitives.h"
@@ -26,10 +28,6 @@ CDisplayWindow::CDisplayWindow(const string& title, int x, int y, int width, int
 CDisplayWindow::~CDisplayWindow()
 {
     LOG_DEBUG("CDisplayWindow::~CDisplayWindow() Begin");
-    if (m_pBackgroundTexture != nullptr)
-        SDL_DestroyTexture(m_pBackgroundTexture);
-    m_pBackgroundTexture = nullptr;
-
     if (m_pFont != nullptr)
         TTF_CloseFont(m_pFont);
     m_pFont = nullptr;
@@ -115,7 +113,7 @@ SDL_HitTestResult CDisplayWindow::DraggingCallback(SDL_Window* win, const SDL_Po
     return SDL_HITTEST_DRAGGABLE;
 }
 
-void CDisplayWindow::Render(SDL_Surface* img)
+void CDisplayWindow::Render(std::vector<unsigned char> image)
 {
     if (m_bWindowShown)
     {
@@ -124,20 +122,33 @@ void CDisplayWindow::Render(SDL_Surface* img)
         
         SDL_Texture* renderTexture;
 
-        if (img != nullptr)
+        if (!image.empty())
         {
-            SDL_Surface* tempSurface = SDL_ConvertSurfaceFormat(img, SDL_GetWindowPixelFormat(m_pWindow), 0);
-            if (tempSurface != nullptr)
-            {
-                CLogger::getInstance()->error("CDisplayWindow::Render() Failed to convert surface to texture: %s", SDL_GetError());
-                renderTexture = SDL_CreateTextureFromSurface(m_pWindowRenderer, tempSurface);
-                SDL_FreeSurface(tempSurface);
+            SDL_RWops* rw = SDL_RWFromMem(&image.front(), image.size());
+            if (rw != NULL) {
+                SDL_Surface* img = IMG_Load_RW(rw, 1);
+                if (img != nullptr)
+                {
+                    //LOG_DEBUG("CDisplayWindow::Render() Storing image surface");
+                    SDL_Surface* tempSurface = SDL_ConvertSurfaceFormat(img, SDL_GetWindowPixelFormat(m_pWindow), 0);
+                    if (tempSurface == nullptr)
+                    {
+                    //    CLogger::getInstance()->error("CDisplayWindow::Render() SDL_ConvertSurfaceFormat failed : %s", SDL_GetError());
+                        renderTexture = m_pBackgroundTexture;
+                    }
+                    else
+                        renderTexture = SDL_CreateTextureFromSurface(m_pWindowRenderer, tempSurface);
+
+                    SDL_FreeSurface(tempSurface);
+                    SDL_FreeSurface(img);
+                }
+                else
+                    renderTexture = LoadTexture(m_sBackgroundImage);
+
             }
             else
-                renderTexture = m_pBackgroundTexture;
+                renderTexture = LoadTexture(m_sBackgroundImage);;
         }
-        else
-            renderTexture = m_pBackgroundTexture;
 
         if (renderTexture != nullptr)
         {
@@ -159,6 +170,7 @@ void CDisplayWindow::Render(SDL_Surface* img)
             {
                 //Render texture to screen
                 SDL_RenderCopy(m_pWindowRenderer, renderTexture, NULL, NULL);
+
             }
         }
         else
@@ -168,6 +180,7 @@ void CDisplayWindow::Render(SDL_Surface* img)
             if (m_pFont != nullptr)
                 ShowPositionText();
 
+        SDL_DestroyTexture(renderTexture);
         SDL_RenderPresent(m_pWindowRenderer);
     }
 
@@ -270,18 +283,6 @@ void CDisplayWindow::DrawDefaultBackground()
     }
 }
 
-void CDisplayWindow::LoadBackground()
-{
-    if (m_sBackgroundImage != "")
-    {
-        m_pBackgroundTexture = LoadTexture(m_sBackgroundImage);
-        if (m_pBackgroundTexture == nullptr)
-        {
-            CLogger::getInstance()->error("CDisplayWindow::LoadBackground() Failed to load background texture image.");
-        }
-    }
-}
-
 bool CDisplayWindow::HandleEvents(SDL_Event& event)
 {
     if (event.type == SDL_WINDOWEVENT && event.window.windowID == m_iWindowID)
@@ -357,7 +358,7 @@ void CDisplayWindow::CloseWindow()
     m_bWindowShown = false;
 }
 
-void CDisplayWindow::SetWindowsMovable(bool set)
+void CDisplayWindow::SetWindowMovable(bool set)
 { 
     m_bWindowsMovable = set; 
     if (m_bWindowsMovable)
@@ -365,8 +366,8 @@ void CDisplayWindow::SetWindowsMovable(bool set)
         int success = SDL_SetWindowHitTest(m_pWindow, CDisplayWindow::DraggingCallback, NULL);
         if (success == -1)
         {
-            LOG_ERROR("CDisplayWindow::SetWindowsMovable() Failed to setup DL_SetWindowHitTest");
-            CLogger::getInstance()->error("CDisplayWindow::SetWindowsMovable() DL_SetWindowHitTest Error: %s", SDL_GetError());
+            LOG_ERROR("CDisplayWindow::SetWindowMovable() Failed to setup DL_SetWindowHitTest");
+            CLogger::getInstance()->error("CDisplayWindow::SetWindowMovable() DL_SetWindowHitTest Error: %s", SDL_GetError());
         }
 
         SDL_SetWindowResizable(m_pWindow, SDL_TRUE);
@@ -376,8 +377,8 @@ void CDisplayWindow::SetWindowsMovable(bool set)
         int success = SDL_SetWindowHitTest(m_pWindow, NULL, NULL);
         if (success == -1)
         {
-            LOG_ERROR("CDisplayWindow::SetWindowsMovable() Failed to unset DL_SetWindowHitTest");
-            CLogger::getInstance()->error("CDisplayWindow::SetWindowsMovable() DL_SetWindowHitTest Error: %s", SDL_GetError());
+            LOG_ERROR("CDisplayWindow::SetWindowMovable() Failed to unset DL_SetWindowHitTest");
+            CLogger::getInstance()->error("CDisplayWindow::SetWindowMovable() DL_SetWindowHitTest Error: %s", SDL_GetError());
         }
 
         SDL_SetWindowResizable(m_pWindow, SDL_FALSE);

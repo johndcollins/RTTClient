@@ -1,9 +1,8 @@
 #pragma once
 
 #include <iostream>
-
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+#include <map>
+#include <vector>
 
 #include <RakNetTypes.h>
 #include <RakPeerInterface.h>
@@ -31,7 +30,7 @@ public:
 	void Disconnect(bool shutdown = false);
 
 	void Pulse();
-	SDL_Surface* DisplayImage(int display);
+	std::vector<unsigned char> DisplayImage(int display);
 
 	void SetLastConnection(const char* ip, int port) { m_sLastIP = ip; m_iLastPort = port; }
 
@@ -49,6 +48,7 @@ private:
 
 	RakNet::RakPeerInterface*	m_pRakPeer = nullptr;
 	SDL_Surface*				m_pCurrentImageArray[DISP_NUM];
+	std::map<int, std::vector<unsigned char>> m_pCurrentImages;
 
 	int							m_iCurrentImageSize = 0;
 	int							m_iCurrentImageWidth = 0;
