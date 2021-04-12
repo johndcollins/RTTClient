@@ -33,7 +33,7 @@ void CNetworkManager::Initialize()
 
 	LOG_DEBUG("CNetworkManager::Constructed");
 
-	g_ConnectionState = CONSTATE_DISC;
+	g_iConnectionState = CONSTATE_DISC;
 	m_bValidHandshake = false;
 
 	LOG_DEBUG("CNetworkManager::Initialize() End");
@@ -67,7 +67,7 @@ void CNetworkManager::Stop()
 	LOG_DEBUG("CNetworkManager::Stop() Begin");
 
 	// Disconnect if we're connected
-	if (g_ConnectionState == CONSTATE_COND)
+	if (g_iConnectionState == CONSTATE_COND)
 		Disconnect();
 
 	LOG_DEBUG("CNetworkManager::Shutting down RakNet");
@@ -84,12 +84,11 @@ void CNetworkManager::Connect(const char* ip, int port)
 	LOG_DEBUG("CNetworkManager::Connect() Begin");
 
 	// Disconnect if we're already connected
-	if (g_ConnectionState == CONSTATE_COND)
+	if (g_iConnectionState == CONSTATE_COND)
 		Disconnect();
 
 	// Set our last connection so we can connect again later and we set our state to connecting
 	SetLastConnection(ip, port);
-	g_ConnectionState = CONSTATE_CONN;
 
 	CLogger::getInstance()->debug("CNetworkManager::Connect() to server %s:%d", ip, port);
 
@@ -99,7 +98,7 @@ void CNetworkManager::Connect(const char* ip, int port)
 	// Check if connection failed, then set our state to failed
 	if (result != 0)
 	{
-		g_ConnectionState = CONSTATE_FAIL;
+		g_iConnectionState = CONSTATE_FAIL;
 		switch ((RakNet::ConnectionAttemptResult)result)
 		{
 			case RakNet::ConnectionAttemptResult::ALREADY_CONNECTED_TO_ENDPOINT :
@@ -121,6 +120,8 @@ void CNetworkManager::Connect(const char* ip, int port)
 		return;
 	}
 
+	g_iConnectionState = CONSTATE_CONN;
+
 	LOG_DEBUG("CNetworkManager::Connect() End");
 }
 
@@ -129,14 +130,14 @@ void CNetworkManager::Disconnect(bool shutdown)
 	LOG_DEBUG("CNetworkManager::Disconnect() Begin");
 
 	// Don't do anything if we're not connected
-	if (g_ConnectionState == CONSTATE_DISC)
+	if (g_iConnectionState == CONSTATE_DISC)
 		return;
 
 	// Stop RakPeer from accepting anymore incoming packets
 	m_pRakPeer->CloseConnection(m_SystemAddr, true);
 
 	// Set our state to disconnected
-	g_ConnectionState = CONSTATE_DISC;
+	g_iConnectionState = CONSTATE_DISC;
 	m_bValidHandshake = false;
 
 	// Clean the server GUID
@@ -208,15 +209,13 @@ void CNetworkManager::SendHandshake()
 void CNetworkManager::Pulse()
 {
 	// Don't do anything if we're disconnected
-	if (g_ConnectionState == CONSTATE_DISC || g_ConnectionState == CONSTATE_FAIL)
+	if (g_iConnectionState == CONSTATE_DISC || g_iConnectionState == CONSTATE_FAIL)
 		return;
 
 	RakNet::Packet* g_Packet = NULL;
 
 	while (g_Packet = m_pRakPeer->Receive())
 	{
-		CLogger::getInstance()->debug("CNetworkManager::Pulse() Packet Received : %d", g_Packet->data[0]);
-
 		RakNet::BitStream g_BitStream(g_Packet->data + 1, g_Packet->length + 1, false);
 
 		switch (g_Packet->data[0])
@@ -376,14 +375,13 @@ void CNetworkManager::Pulse()
 				}
 
 				LOG_DEBUG("CNetworkManager::Pulse() RTT Handshake completed");
-				g_ConnectionState = CONSTATE_COND;
-
+				g_iConnectionState = CONSTATE_COND;
 				LOG_DEBUG("CNetworkManager::Pulse() MSG_HANDSHAKE End");
 				break;
 			}
 			case MSG_IMAGE:
 			{
-				LOG_DEBUG("CNetworkManager::Pulse() MSG_IMAGE Begin");
+				//LOG_DEBUG("CNetworkManager::Pulse() MSG_IMAGE Begin");
 
 				RTT_HEADER header;
 				memcpy(&header, g_Packet->data + sizeof(unsigned char), sizeof(struct RTT_HEADER));
@@ -394,7 +392,7 @@ void CNetworkManager::Pulse()
 				m_pCurrentImages[header.disp] = v;
 				m_pCurrentImages[header.disp].shrink_to_fit();
 
-				LOG_DEBUG("CNetworkManager::Pulse() MSG_IMAGE End");
+				//LOG_DEBUG("CNetworkManager::Pulse() MSG_IMAGE End");
 				break;
 			}
 			case MSG_DATA:
@@ -406,7 +404,7 @@ void CNetworkManager::Pulse()
 		}
 		m_pRakPeer->DeallocatePacket(g_Packet);
 
-		LOG_DEBUG("CNetworkManager::Pulse() Done Receiving Packages");
+		//LOG_DEBUG("CNetworkManager::Pulse() Done Receiving Packages");
 	}
 }
 

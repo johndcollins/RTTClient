@@ -111,7 +111,7 @@ SDL_HitTestResult CDisplayWindow::DraggingCallback(SDL_Window* win, const SDL_Po
     return SDL_HITTEST_DRAGGABLE;
 }
 
-void CDisplayWindow::Render(std::vector<unsigned char> image)
+void CDisplayWindow::Render(bool connected, std::vector<unsigned char> image)
 {
     if (m_bWindowShown)
     {
@@ -120,7 +120,7 @@ void CDisplayWindow::Render(std::vector<unsigned char> image)
         
         SDL_Texture* renderTexture;
 
-        if (!image.empty())
+        if (!image.empty() && connected)
         {
             SDL_RWops* rw = SDL_RWFromMem(&image.front(), image.size());
             if (rw != NULL) {
@@ -140,11 +140,12 @@ void CDisplayWindow::Render(std::vector<unsigned char> image)
                 }
                 else
                     renderTexture = LoadTexture(m_sBackgroundImage);
-
             }
             else
-                renderTexture = LoadTexture(m_sBackgroundImage);;
+                renderTexture = LoadTexture(m_sBackgroundImage);
         }
+        else
+            renderTexture = LoadTexture(m_sBackgroundImage);
 
         if (renderTexture != nullptr)
         {
@@ -180,6 +181,9 @@ void CDisplayWindow::Render(std::vector<unsigned char> image)
 
 SDL_Texture* CDisplayWindow::LoadTexture(string path)
 {
+    if (path.empty())
+        return nullptr;
+
     //The final texture
     SDL_Texture* newTexture = NULL;
 

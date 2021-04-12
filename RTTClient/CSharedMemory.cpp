@@ -23,11 +23,13 @@ CSharedMemory::CSharedMemory(int defaultFps, bool networked, string ipAddress, i
 
     LOG_DEBUG("CSharedMemory::CSharedMemory() Connecting...");
     m_pNetworkMgr->Connect(m_sIpAddress.c_str(), m_iPort);
-    if (m_pNetworkMgr->g_ConnectionState == CONSTATE_COND)
+    if (m_pNetworkMgr->g_iConnectionState == CONSTATE_COND)
         LOG_DEBUG("CSharedMemory::CSharedMemory() Connected");
-    else if (m_pNetworkMgr->g_ConnectionState == CONSTATE_DISC)
+    else if (m_pNetworkMgr->g_iConnectionState == CONSTATE_CONN)
+        LOG_DEBUG("CSharedMemory::CSharedMemory() Connecting");
+    else if (m_pNetworkMgr->g_iConnectionState == CONSTATE_DISC)
         LOG_DEBUG("CSharedMemory::CSharedMemory() Disconnected");
-    else if (m_pNetworkMgr->g_ConnectionState == CONSTATE_FAIL)
+    else if (m_pNetworkMgr->g_iConnectionState == CONSTATE_FAIL)
         LOG_DEBUG("CSharedMemory::CSharedMemory() Conenction failed");
 }
 
@@ -35,6 +37,11 @@ CSharedMemory::~CSharedMemory()
 {
     if (m_bNetworked)
         m_pNetworkMgr->Disconnect(true);
+}
+
+bool CSharedMemory::Connected()
+{
+    return (m_pNetworkMgr->g_iConnectionState == CONSTATE_COND);
 }
 
 std::vector<unsigned char> CSharedMemory::DisplayImage(int display)
@@ -63,7 +70,7 @@ void CSharedMemory::Update()
     {
         if (m_bNetworked)
         {
-            if (m_pNetworkMgr->g_ConnectionState == CONSTATE_DISC && m_pNetworkMgr->g_ConnectionState == CONSTATE_FAIL)
+            if (m_pNetworkMgr->g_iConnectionState == CONSTATE_DISC || m_pNetworkMgr->g_iConnectionState == CONSTATE_FAIL)
                 m_pNetworkMgr->Connect(m_sIpAddress.c_str(), m_iPort);
 
             m_pNetworkMgr->Pulse();

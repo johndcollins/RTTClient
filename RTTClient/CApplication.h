@@ -26,7 +26,7 @@ using namespace RTTClient::Common;
 class Application
 {
 public:
-    Application(int argc, char* argv[]);
+    Application(bool logDebug);
     ~Application();
 
     void Loop();

@@ -16,7 +16,7 @@ public:
 
     void SetBackgroundImage(string filename);
 
-    void Render(std::vector<unsigned char> image);
+    void Render(bool connected, std::vector<unsigned char> image);
     
     bool HandleEvents(SDL_Event& event);
 

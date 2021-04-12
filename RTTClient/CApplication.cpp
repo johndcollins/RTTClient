@@ -13,11 +13,14 @@ using namespace RTTClient::Common;
 #define SCREEN_SIZE_X 800
 #define SCREEN_SIZE_Y 600
 
-Application::Application(int argc, char* argv[])
+Application::Application(bool logDebug)
 {
     LOG_DEBUG("Application::Application() Begin");
 
-    CLogger::getInstance()->updateLogLevel(LogLevel::LOG_LEVEL_DEBUG);
+    if (logDebug)
+        CLogger::getInstance()->updateLogLevel(LogLevel::LOG_LEVEL_DEBUG);
+    else
+        CLogger::getInstance()->updateLogLevel(LogLevel::DISABLE_LOG);
 
     ReadSettings();
 
@@ -259,7 +262,7 @@ void Application::RenderDisplays()
                 m_pHUDWindow->ShowWindow();
 
             m_pHUDWindow->MoveWindow(m_iHUD_X, m_iHUD_Y, m_iHUD_W, m_iHUD_H, m_bHUD_ONTOP);
-            m_pHUDWindow->Render(m_pSharedMemory->DisplayImage(HUD));
+            m_pHUDWindow->Render(m_pSharedMemory->Connected(),  m_pSharedMemory->DisplayImage(HUD));
         }
     }
 
@@ -284,7 +287,7 @@ void Application::RenderDisplays()
                 m_pPFLWindow->ShowWindow();
 
             m_pPFLWindow->MoveWindow(m_iPFL_X, m_iPFL_Y, m_iPFL_W, m_iPFL_H, m_bPFL_ONTOP);
-            m_pPFLWindow->Render(m_pSharedMemory->DisplayImage(PFL));
+            m_pPFLWindow->Render(m_pSharedMemory->Connected(), m_pSharedMemory->DisplayImage(PFL));
         }
     }
 
@@ -309,7 +312,7 @@ void Application::RenderDisplays()
                 m_pDEDWindow->ShowWindow();
 
             m_pDEDWindow->MoveWindow(m_iDED_X, m_iDED_Y, m_iDED_W, m_iDED_H, m_bDED_ONTOP);
-            m_pDEDWindow->Render(m_pSharedMemory->DisplayImage(DED));
+            m_pDEDWindow->Render(m_pSharedMemory->Connected(), m_pSharedMemory->DisplayImage(DED));
         }
     }
 
@@ -334,7 +337,7 @@ void Application::RenderDisplays()
                 m_pRWRWindow->ShowWindow();
 
             m_pRWRWindow->MoveWindow(m_iRWR_X, m_iRWR_Y, m_iRWR_W, m_iRWR_H, m_bRWR_ONTOP);
-            m_pRWRWindow->Render(m_pSharedMemory->DisplayImage(RWR));
+            m_pRWRWindow->Render(m_pSharedMemory->Connected(), m_pSharedMemory->DisplayImage(RWR));
         }
     }
 
@@ -359,7 +362,7 @@ void Application::RenderDisplays()
                 m_pMFDLEFTWindow->ShowWindow();
 
             m_pMFDLEFTWindow->MoveWindow(m_iMFDLEFT_X, m_iMFDLEFT_Y, m_iMFDLEFT_W, m_iMFDLEFT_H, m_bMFDLEFT_ONTOP);
-            m_pMFDLEFTWindow->Render(m_pSharedMemory->DisplayImage(MFDLEFT));
+            m_pMFDLEFTWindow->Render(m_pSharedMemory->Connected(), m_pSharedMemory->DisplayImage(MFDLEFT));
         }
     }
 
@@ -384,7 +387,7 @@ void Application::RenderDisplays()
                 m_pMFDRIGHTWindow->ShowWindow();
 
             m_pMFDRIGHTWindow->MoveWindow(m_iMFDRIGHT_X, m_iMFDRIGHT_Y, m_iMFDRIGHT_W, m_iMFDRIGHT_H, m_bMFDRIGHT_ONTOP);
-            m_pMFDRIGHTWindow->Render(m_pSharedMemory->DisplayImage(MFDRIGHT));
+            m_pMFDRIGHTWindow->Render(m_pSharedMemory->Connected(), m_pSharedMemory->DisplayImage(MFDRIGHT));
         }
     }
 
@@ -409,7 +412,7 @@ void Application::RenderDisplays()
                 m_pHMSWindow->ShowWindow();
 
             m_pHMSWindow->MoveWindow(m_iHMS_X, m_iHMS_Y, m_iHMS_W, m_iHMS_H, m_bHMS_ONTOP);
-            m_pHMSWindow->Render(m_pSharedMemory->DisplayImage(HMS));
+            m_pHMSWindow->Render(m_pSharedMemory->Connected(), m_pSharedMemory->DisplayImage(HMS));
         }
     }
 }

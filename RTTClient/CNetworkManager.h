@@ -39,7 +39,7 @@ public:
 	RakNet::RakPeerInterface* GetInterface() { return m_pRakPeer; }
 	RakNet::SystemAddress GetSystemAddress() { return m_SystemAddr; }
 
-	int g_ConnectionState;
+	int	g_iConnectionState = CONSTATE_DISC;
 
 private:
 	void Initialize();

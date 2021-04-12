@@ -14,6 +14,8 @@ public:
 	CSharedMemory(int defaultFps, bool networked, string ipAddress, int port);
 	~CSharedMemory();
 
+	bool Connected();
+
 	std::vector<unsigned char> DisplayImage(int display);
 	void Update();
 
