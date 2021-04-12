@@ -19,7 +19,7 @@ Additional Features:
   * `Ability to Flip in both Horizontal and Vertical` (e.g HUD_FLIPPED_VERTICALLY = 1 or HUD_FLIPPED_HORIZONTICALLY = 1)
   * `Move and Resize the windows` (WINDOWS_MOVABLE = 1 - This doesn't actually save the values to the ini file, but help you find the values to put in the ini file)
   * `Show Position on screen` (SHOW_POSITION_INFO = 1 to help get the current values after moving and resizing)
-  * `Set Background Images for each display instead of the standard orange helpers.` (MFDLEFT_BACKGROUND_IMAGE = <path to png or jpg image file>) 
+  * `Set Background Images for each display instead of the standard orange helpers.` (MFDLEFT_BACKGROUND_IMAGE = "path to png or jpg image file") 
   
 Possible future enhancements:
   * [ ] `ONTOP`
