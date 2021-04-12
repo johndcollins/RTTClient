@@ -47,7 +47,6 @@ private:
 	void SendHandshake();
 
 	RakNet::RakPeerInterface*	m_pRakPeer = nullptr;
-	SDL_Surface*				m_pCurrentImageArray[DISP_NUM];
 	std::map<int, std::vector<unsigned char>> m_pCurrentImages;
 
 	int							m_iCurrentImageSize = 0;

@@ -21,16 +21,6 @@ CNetworkManager::~CNetworkManager()
 {
 	LOG_DEBUG("CNetworkManager::~CNetworkManager Begin");
 	Destroy();
-	
-	for (int i = 0; i < DISP_NUM; i++)
-	{
-		if (m_pCurrentImageArray[i] != nullptr)
-		{
-			SDL_FreeSurface(m_pCurrentImageArray[i]);
-			m_pCurrentImageArray[i] = nullptr;
-		}
-	}
-
 	LOG_DEBUG("CNetworkManager::~CNetworkManager End");
 };
 
@@ -39,10 +29,6 @@ void CNetworkManager::Initialize()
 {
 	LOG_DEBUG("CNetworkManager::Initialize() Begin");
 
-	for (int i = 0; i < DISP_NUM; i++)
-		m_pCurrentImageArray[i] = nullptr;
-
-	// Get RakPeerInterface
 	m_pRakPeer = RakNet::RakPeerInterface::GetInstance();
 
 	LOG_DEBUG("CNetworkManager::Constructed");

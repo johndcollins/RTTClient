@@ -65,8 +65,6 @@ void CDisplayWindow::SetBackgroundImage(string filename)
         }
 
         m_sBackgroundImage = filename;
-
-        LoadBackground();
     }
 }
 
@@ -129,17 +127,15 @@ void CDisplayWindow::Render(std::vector<unsigned char> image)
                 SDL_Surface* img = IMG_Load_RW(rw, 1);
                 if (img != nullptr)
                 {
-                    //LOG_DEBUG("CDisplayWindow::Render() Storing image surface");
                     SDL_Surface* tempSurface = SDL_ConvertSurfaceFormat(img, SDL_GetWindowPixelFormat(m_pWindow), 0);
                     if (tempSurface == nullptr)
-                    {
-                    //    CLogger::getInstance()->error("CDisplayWindow::Render() SDL_ConvertSurfaceFormat failed : %s", SDL_GetError());
-                        renderTexture = m_pBackgroundTexture;
-                    }
+                        renderTexture = LoadTexture(m_sBackgroundImage);
                     else
+                    {
                         renderTexture = SDL_CreateTextureFromSurface(m_pWindowRenderer, tempSurface);
+                        SDL_FreeSurface(tempSurface);
+                    }
 
-                    SDL_FreeSurface(tempSurface);
                     SDL_FreeSurface(img);
                 }
                 else
@@ -167,11 +163,7 @@ void CDisplayWindow::Render(std::vector<unsigned char> image)
                 SDL_RenderCopyEx(m_pWindowRenderer, renderTexture, NULL, NULL, 0, NULL, flip);
             }
             else
-            {
-                //Render texture to screen
                 SDL_RenderCopy(m_pWindowRenderer, renderTexture, NULL, NULL);
-
-            }
         }
         else
             DrawDefaultBackground();
