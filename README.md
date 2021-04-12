@@ -52,7 +52,7 @@ cmake --build .
 ```
 
 This will create a RTTClient file in the RTTClient folder.
-Copy the following files to a new folder called ~/RTTClient
+Copy the following files to a new folder here ~/RTTClient
 ```c
 RTTClient
 RTTClient.ini
