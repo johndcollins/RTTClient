@@ -22,12 +22,12 @@ Additional Features:
   * `Set Background Images for each display instead of the standard orange helpers.` (MFDLEFT_BACKGROUND_IMAGE = <path to png or jpg image file) 
   
 Possible future enhancements:
-  * [] `Local mode` (this doesn't makse sense as BMS doesn't run on Linux)
-  * [] `ONTOP`
-  * [] `RWR_GRID`
-  * [] `SHAREDMEMORY`
-  * [] `RENDERER` (It just uses the default right now, I think Rpi supports OpenGL, OpenGL ES and OpenGL ES2)
-  * [] `Cross platform to this can be used on Windows or Mac`
+  * [ ] `Local mode` (this doesn't makse sense as BMS doesn't run on Linux)
+  * [ ] `ONTOP`
+  * [ ] `RWR_GRID`
+  * [ ] `SHAREDMEMORY`
+  * [ ] `RENDERER` (It just uses the default right now, I think Rpi supports OpenGL, OpenGL ES and OpenGL ES2)
+  * [ ] `Cross platform to this can be used on Windows or Mac`
   
  
   
