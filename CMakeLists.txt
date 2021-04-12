@@ -6,4 +6,4 @@ cmake_minimum_required (VERSION 3.8)
 project ("RTTClient.CrossPlatform" VERSION 1.0)
 
 # Include sub-projects.
-add_subdirectory ("RTTClient")
+add_subdirectory ("src")
