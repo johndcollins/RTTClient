@@ -35,9 +35,7 @@ One way is to follow these steps (can be done in many different ways)
 
 Install the following dependencies:
 ```c
-sudo apt-get install -y g++ gdb make ninja-build rsync zip
-sudo apt-get install -y build-essential gdb
-sudo apt-get install -y cmake
+sudo apt-get install -y build-essential gdb g++ zip cmake
 sudo apt-get install -y libsdl2-dev
 sudo apt install -y libsdl2-image-dev
 sudo apt install -y libsdl2-ttf-dev
