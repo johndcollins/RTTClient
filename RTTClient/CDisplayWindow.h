@@ -55,7 +55,7 @@ private:
 
     SDL_Event       m_windowEvent;
 
-    string          m_sTitle;
+    string          m_sTitle = "";
     int             m_iWindow_X = 0;
     int             m_iWindow_Y = 0;
     int             m_iWindow_W = 800;
@@ -65,7 +65,7 @@ private:
     bool            m_bWindow_Created = false;
     bool            m_bWindowShown = false;
 
-    string          m_sBackgroundImage;
+    string          m_sBackgroundImage = "";
     bool            m_bShowPositionInfo = false;
     bool            m_bWindowsMovable = false;
     bool            m_bFlipImageHorizontally = false;

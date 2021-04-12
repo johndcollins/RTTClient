@@ -94,11 +94,11 @@ bool CDisplayWindow::Init()
         return false;
     }
 
-    m_pFont = TTF_OpenFont("font.ttf", 12);
+    m_pFont = TTF_OpenFont("font.ttf", 24);
     if (m_pFont == nullptr)
     {
         LOG_ERROR("CDisplayWindow::Init() Failed to setup TTF Font");
-        CLogger::getInstance()->error("CDisplayWindow::Init() Failed to load lazy font! SDL_ttf Error: %s", TTF_GetError());
+        CLogger::getInstance()->error("CDisplayWindow::Init() Failed to load font! SDL_ttf Error: %s", TTF_GetError());
     }
 
     LOG_DEBUG("CDisplayWindow::Init() End");
@@ -224,7 +224,7 @@ void CDisplayWindow::RenderText(string text, SDL_Rect dest, SDL_Color textColor)
 
 void CDisplayWindow::ShowPositionText()
 {
-    SDL_Rect dest = { 10, 10, 0, 0 };
+    SDL_Rect dest = { m_iWindow_W / 2 - 100, m_iWindow_H / 2 - 50, 0, 0 };
 
     SDL_Color textColor = { 0xFF, 0xFF, 0xFF };
     std::ostringstream stringStream;

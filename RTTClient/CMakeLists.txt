@@ -4,7 +4,7 @@
 cmake_minimum_required (VERSION 3.8)
 
 # Add source to this project's executable.
-add_executable (RTTClient "main.cpp"     "CDisplayWindow.h" "CDisplayWindow.cpp" "CNetworkManager.h" "CNetworkManager.cpp"   "IntelliVibe.h" "BMSTexture.h"       "CConfigReader.h" "CConfigReader.cpp" "CLogger.h" "CLogger.cpp" "CApplication.h" "CApplication.cpp" "CSharedMemory.h" "CSharedMemory.cpp" "SDL2_Gfx/SDL2_gfxPrimitives_font.h" "SDL2_Gfx/SDL2_rotozoom.h" "SDL2_Gfx/SDL2_rotozoom.c" "SDL2_Gfx/SDL2_gfxPrimitives.h" "SDL2_Gfx/SDL2_gfxPrimitives.c" "rtt.h")
+add_executable (RTTClient "main.cpp" "CDisplayWindow.h" "CDisplayWindow.cpp" "CNetworkManager.h" "CNetworkManager.cpp"   "IntelliVibe.h" "BMSTexture.h" "CConfigReader.h" "CConfigReader.cpp" "CLogger.h" "CLogger.cpp" "CApplication.h" "CApplication.cpp" "CSharedMemory.h" "CSharedMemory.cpp" "SDL2_Gfx/SDL2_gfxPrimitives_font.h" "SDL2_Gfx/SDL2_rotozoom.h" "SDL2_Gfx/SDL2_rotozoom.c" "SDL2_Gfx/SDL2_gfxPrimitives.h" "SDL2_Gfx/SDL2_gfxPrimitives.c" "rtt.h")
 
 #IF(OS_WINDOWS)
 #ELSEIF(OS_LINUX)
