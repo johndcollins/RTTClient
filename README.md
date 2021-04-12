@@ -44,7 +44,7 @@ sudo apt install -y libsdl2-ttf-dev
 sudo apt-get install -y libglew-dev
 ```
 
-Clone this project in a folder like ~/projects/rttclient on your Rpi 4
+Clone this project in a folder like ~/projects/rttclient on your Rpi 4.
 Go to the folder and run:
 ```c
 cmake .
