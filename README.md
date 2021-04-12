@@ -22,7 +22,6 @@ Additional Features:
   * `Set Background Images for each display instead of the standard orange helpers.` (MFDLEFT_BACKGROUND_IMAGE = <path to png or jpg image file) 
   
 Possible future enhancements:
-  * [ ] `Local mode` (this doesn't makse sense as BMS doesn't run on Linux)
   * [ ] `ONTOP`
   * [ ] `RWR_GRID`
   * [ ] `SHAREDMEMORY`
