@@ -222,7 +222,7 @@ void CDisplayWindow::RenderText(string text, SDL_Rect dest, SDL_Color textColor)
 
 void CDisplayWindow::ShowPositionText()
 {
-    SDL_Rect dest = { m_iWindow_W / 2 - 100, m_iWindow_H / 2 - 50, 0, 0 };
+    SDL_Rect dest = { m_iWindow_W / 2 - 200, 200, 0, 0 };
 
     SDL_Color textColor = { 0xFF, 0xFF, 0xFF };
     std::ostringstream stringStream;
