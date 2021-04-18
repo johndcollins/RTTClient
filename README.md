@@ -31,7 +31,8 @@ Possible future enhancements:
   
  
 # Setup
-You will need to build this project
+You will need to build this project.
+
 One way is to follow these steps (can be done in many different ways)
 
 Install the following dependencies:
