@@ -44,6 +44,10 @@ sudo apt install -y libsdl2-ttf-dev
 sudo apt-get install -y libglew-dev
 ```
 
+Clone RakNet from here : https://github.com/facebookarchive/RakNet
+Put it in ~\RakNet
+Compile place the libraries in the correct folders
+
 Clone this project in a folder like ~/projects/rttclient on your Rpi 4.
 Go to the folder and run:
 ```c
