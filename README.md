@@ -47,8 +47,7 @@ sudo apt-get install -y libglew-dev
 Clone RakNet from here : https://github.com/larku/RakNet
 Put it in ~\RakNet
 
- * The following options need to be set in "RakNetDefinesOverrides.h" to make it
- * compatible at with RTTServer at compile time:
+ * The following options need to be set in "RakNetDefinesOverrides.h" to make it compatible at with RTTServer at compile time:
  * #define USE_SLIDING_WINDOW_CONGESTION_CONTROL 0
 
 Compile place the libraries in the correct folders
