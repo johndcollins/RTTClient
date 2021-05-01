@@ -44,8 +44,13 @@ sudo apt install -y libsdl2-ttf-dev
 sudo apt-get install -y libglew-dev
 ```
 
-Clone RakNet from here : https://github.com/facebookarchive/RakNet
+Clone RakNet from here : https://github.com/larku/RakNet
 Put it in ~\RakNet
+
+ * The following options need to be set in "RakNetDefinesOverrides.h" to make it
+ * compatible at with RTTServer at compile time:
+ * #define USE_SLIDING_WINDOW_CONGESTION_CONTROL 0
+
 Compile place the libraries in the correct folders
 
 Clone this project in a folder like ~/projects/rttclient on your Rpi 4.
